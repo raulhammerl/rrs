@@ -49,8 +49,8 @@ class Recorder:
 
             #start audio capturing
             try:
-                self._write_stream_to_file(recording)
-                # self._write_stream_till_tmr(recording)
+                # self._write_stream_to_file(recording)
+                self._write_stream_till_tmr(recording)
                 return recording
             except Exception as e:
                 logging.error("Could not complete capturing, because an exception occured: {}".format(e))

@@ -32,13 +32,13 @@ def main(argv=None):
         '''
 
         #too little arguments
-        if len(argv) != 4:
+        if len(argv) != 3:
             print(helpText)
             sys.exit()
 
         channel_name = argv[1]
-        time_to_record = 60 * int(argv[2])
-        directory = argv[3]
+        # time_to_record = 60 * int(argv[2])
+        directory = argv[2]
 
 
         today = datetime.date.today()
