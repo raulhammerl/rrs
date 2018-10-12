@@ -19,16 +19,16 @@ class Audio_data_handler:
 
     def cut_blob_into_episodes(self):
         # find all episodes from date
-        all_rows = self.db.find_episodes_by_date(self.db_conn, self.date)
+        all_rows = self.db.find_episodes_by_date(self.date)
         logging.debug("trying to find episodes with date: {}".format(self.date))
         for episode in all_rows:
             #get episode attributes
             episode_id = episode[0]
             logging.debug("found episode with id: {}".format(episode_id))
-            episode = self.db.find_episode_by_id(self.db_conn, episode_id)
+            episode = self.db.find_episode_by_id(episode_id)
 
             # find corresponding recording
-            recording = db.find_recording(self.db_conn, episode.recording_id)
+            recording = self.db.find_recording(episode.recording_id)
             logging.debug("Recording found: {}". format(recording))
 
             # check if recording is already an extract if so skip episode
@@ -54,7 +54,7 @@ class Audio_data_handler:
                 logging.debug("episode not in time frame")
                 continue
 
-            if recording.channel_id != channel.id:
+            if recording.channel_id != self.channel.id:
                 logging.debug("episode from another channel")
                 continue
 
@@ -94,7 +94,7 @@ class Audio_data_handler:
                         '-c' ,'copy',
                          '-metadata', 'album={}'.format(episode.show_id),
                          '-metadata', 'track={}'.format(recording.id),
-                         '-metadata', 'artist={}'.format(channel.id),
+                         '-metadata', 'artist={}'.format(self.channel.id),
                          outputstr]
                 subprocess.call(call)
 
@@ -116,29 +116,9 @@ class Audio_data_handler:
                 )
 
                 # save entity in db
-                recording.id = self.db.create_recording(self.db_conn, self.new_recording)
-                self.db.update_episode_recording(self.db_conn, episode_id, recording.id)
-                self.self.db_conn.commit()
+                recording.id = self.db.create_recording(new_recording)
+                self.db.update_episode_recording(episode_id, recording.id)
 
             except Exception as e:
                 logging.error(e)
                 raise e
-
-
-
-# def main():
-#     adh = Audio_data_handler()
-#     file_Br = '/Users/Raul/Captures/Br_Klassik/2018-09-05/Br_Klassik-2018-09-05_17-16-44.mp3'
-#     file_B1 = '/Users/Raul/Captures/Bayern_1/2018-09-10/Bayern_1-2018-09-10_11-23-39.mp3'
-#     file = '/Users/Raul/Captures/WDR2/2018-09-10/WDR2-2018-09-10_11-23-39.mp3'
-#     db_file = '/Users/Raul/db.sqlite'
-#     db = Database.Database()
-#     db_conn = db.create_connection(db_file)
-#     channel = db.find_channel_by_name(db_conn, "Bayern_1")
-#     adh.cut_blob_into_episodes(db, db_conn, "2018-09-05", channel)
-#
-#
-#
-#
-# if __name__ == "__main__":
-#     main()

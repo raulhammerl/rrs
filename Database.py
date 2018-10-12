@@ -38,8 +38,8 @@ class Database:
                 else:
                     c.execute(statement, values)
 
-                if fetch == 'lastrow':
-                    data = c.fetchall()
+                if fetch == 'lastrowid':
+                    data = c.lastrowid
                 if fetch == 'allrows':
                     data = c.fetchall()
                 if fetch == 'onerow':
@@ -48,7 +48,7 @@ class Database:
                     data = None
                 return data
             except sqlite3.Error as e:
-                logging.warning(e)
+                logging.warning("{} while executing {} {} {}".format(e, statement, values, fetch))
 
 
 
@@ -64,7 +64,7 @@ class Database:
         """
         sql = ''' INSERT INTO recordings(channel_id, channel_name, recording_date, start_time, duration, file_path, file_size, is_episode)
                   VALUES(?,?,?,?,?,?,?,?) '''
-        data = self.execute(sql, recording, 'lastrow')
+        data = self.execute(sql, recording, 'lastrowid')
         return data
 
     def find_recording(self, id):
@@ -92,9 +92,8 @@ class Database:
         sql = '''UPDATE recordings
                  SET file_path = ?
                  WHERE recording_id = ?'''
-        with dbopen(self.db_file) as c:
-            data = c.execute(sql,[path, id], 'lastrow')
-            return data
+        data = self.execute(sql, [path, id], 'lastrowid')
+        return data
 
 
     def create_channel(self, channel):
@@ -106,7 +105,7 @@ class Database:
         """
         sql = ''' INSERT INTO channels(name, description, language, stream_url, radiodns_url)
                   VALUES(?,?,?,?,?) '''
-        data = self.execute(sql, channel, 'lastrow')
+        data = self.execute(sql, channel, 'lastrowid')
         return data
 
     def delete_channel(self, channel_id):
@@ -151,7 +150,7 @@ class Database:
 
     def list_channels (self):
         sql = '''SELECT channel_id, name FROM channels WHERE channel_id=?'''
-        channels = self.cur.execute(sql, (channel_id,), 'allrows')
+        channels = self.cur.execute(sql, [channel_id], 'allrows')
         print(channels)
 
     def create_show(self, show):
@@ -163,11 +162,11 @@ class Database:
         """
         sql = ''' INSERT INTO shows(channel_id, name, genre, language, keywords)
                   VALUES(?,?,?,?,?) '''
-        data = self.execute(sql, show, 'lastrow')
+        data = self.execute(sql, show, 'lastrowid')
         return data
 
     def find_show (self, show_name):
-        sql = 'SELECT rowid FROM shows WHERE name=?'
+        sql = 'SELECT * FROM shows WHERE name=?'
         data = self.execute(sql, [show_name],'onerow')
         #EDIT probleme wenn doppelt gefunden
         return data
@@ -193,7 +192,7 @@ class Database:
         """
         sql = ''' INSERT INTO episodes(show_id, description, date, duration, recording_id, start_time)
                   VALUES(?,?,?,?,?,?) '''
-        data = self.execute(sql, episode, 'lastrow')
+        data = self.execute(sql, episode, 'lastrowid')
         return data
 
 
@@ -220,8 +219,8 @@ class Database:
         sql = '''UPDATE episodes
                  SET  recording_id = ?
                  WHERE episode_id = ?'''
-        print("updating episode: {} to recording: {}".format(episode_id, recording_id))
-        data = self.execute(sql,[recording_id, episode_id], 'lastrow')
+        logging.info("updating episode: {} to recording: {}".format(episode_id, recording_id))
+        data = self.execute(sql,[recording_id, episode_id], 'lastrowid')
         return data
 
     def delete_episode(self, episode_id):
@@ -354,16 +353,3 @@ class Database:
         print(data)
         data = self.execute(select_episodes_sql , None, 'allrows')
         print(data)
-
-# def main():
-#     cwd = os.getcwd()
-#     print("cwd {}".format(cwd))
-#     db = Database()
-#     db_file = os.path.join(cwd, 'self.sqlite')
-#     conn = self.create_connection(db_file)
-#
-#     self.init_RadioDB(db_file)
-#     self.printDB(db_file)
-#     # channel = self.find_channel(conn, "BR_KLASSIK")
-#     # print(channel)
-# main()

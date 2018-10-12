@@ -25,12 +25,10 @@ def main(argv=None):
         helpText = '''
         Please enter the
         [1] name of the channel
-        [2] minutes to record
-        [3] directory to store recordings
+        [2] directory to store recordings
         as arguments
 
-
-        like: "./recorder_exec.py Br_Klassik 1440 /User/Data"
+        like: "./recorder_exec.py Br_Klassik /User/Data"
         '''
 
         #too little arguments
@@ -69,7 +67,7 @@ def main(argv=None):
 
                 #start audio processing
                 audio_data_handler = Audio_data_handler.Audio_data_handler(db_file, today, channel)
-                audio_data_handler.cut_blob_into_episodes(db_file, today, channel)
+                audio_data_handler.cut_blob_into_episodes()
 
             except RuntimeError as e:
               exit("ERROR: {}".format(e.message))

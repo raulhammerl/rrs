@@ -4,6 +4,7 @@ import os
 import time
 from urllib.error import HTTPError, URLError
 from urllib.request import urlopen, Request
+from socket import timeout
 
 from Entities import Episode, Recording, Channel
 import Database
@@ -183,7 +184,7 @@ class Recorder:
                 # os.remove(recording.file)
                 raise e
 
-            except socket.timeout as e:
+            except timeout as e:
                 logging.warning("Capturing interupted. {}".format(e))
                 raise e
 
