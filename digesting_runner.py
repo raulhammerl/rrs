@@ -1,10 +1,3 @@
-import sys
-import logging
-
-import AudioDataHandler
-import MusicFeatureAnalyzer
-import Database
-
 """
 
 needs:
@@ -25,6 +18,17 @@ all_rows = self.db.find_episodes_by_date(self.date)
         * episode_path
 
 """
+
+import sys
+import logging
+import os
+
+import AudioDataHandler
+import MusicFeatureAnalyzer
+import Database
+
+
+logging.basicConfig(level=logging.INFO)
 
 
 def main(argv=None):
@@ -70,6 +74,10 @@ def digest_daily_blob(directory, date, channel_name):
             music_feature_analyzer = MusicFeatureAnalyzer.MusicFeatureAnalyzer(directory)
             music_feature_analyzer.analyze_episode(extracted_episode)
 
+
+
+    logging.info("Digesting process finished")
+    sys.exit(0)
 
 
 

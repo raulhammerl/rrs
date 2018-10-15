@@ -46,13 +46,15 @@ class MusicFeatureAnalyzer:
         return outputstr
 
     def _create_csv_from_sig(self, input):
-        include = "--include metadata.audio_properties.* metadata.tags.musicbrainz_recordingid.0 lowlevel.* rhythm.* tonal.* "
+        """metadata.audio_properties.* metadata.tags.musicbrainz_recordingid.0"""
+        include = "--include lowlevel.* rhythm.* tonal.* "
         ignore = "--ignore *.min *.min.* *.max *.max.* *.dvar *.dvar2 *.dvar.* *.dvar2.* *.dmean *.dmean2 *.dmean.* *.dmean2.* *.cov.* *.icov.* rhythm.beats_position.* "
         # outputstr = '/Users/Raul/Dropbox/Documents/Uni/Bachelorarbeit/MusicAnalyzer/{}.csv'.format(output)
         if(".sig" in input):
             output = input.replace(".sig",".csv")
             if(os.path.exists(output)==False):
-                call = ["/usr/local/bin/python3", '/Users/Raul/Dropbox/Documents/Uni/Bachelorarbeit/MusicAnalyzer/json_to_csv.py', '-i',input ,'-o', output]
+                call = ["/usr/local/bin/python3", '/Users/Raul/Dropbox/Documents/Uni/Bachelorarbeit/MusicAnalyzer/json_to_csv.py', '-i',input ,'-o', output, "--ignore", "rhythm.beats_position.*", "*mfcc*"]
+                call2 = ["--ignore", "rhythm.beats_position.*"]
                 subprocess.call(call)
                 logging.debug(call)
 

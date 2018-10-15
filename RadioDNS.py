@@ -2,8 +2,7 @@ import xml.etree.ElementTree as ET
 from urllib.error import HTTPError, URLError
 import urllib.request
 import os
-import os.path
-
+# import os.path
 import logging
 
 
@@ -20,17 +19,21 @@ class RadioDNS:
         self.channel = channel
         self.date = str(date)
         self.directory = directory
-        self.directory = os.path.join(directory, 'Captures')
+        self.directory = os.path.join(directory,'Data','Captures')
 
 
     def get_radioDNS_metadata(self):
+        # get rDNS url
         radioDNS_url = self._get_url()
-        logging.debug("got rDNS url {} for {}".format(radioDNS_url, self.channel.name))
+        logging.info("found rDNS url {} for {}".format(radioDNS_url, self.channel.name))
+
+        # download programm information XML
         radionDNS_xml = self._catch_radioDNS(radioDNS_url)
-        logging.debug("got rDNS XMl for {}".format(self.channel.name))
-        #change recording.filename to RDNS_path so recording can be created afterwards
+        logging.info("catched rDNS XMl for {}".format(self.channel.name))
+
+        # parse XML to database
         self._read_radioDNS(radionDNS_xml)
-        logging.debug("interpreted rDNS XMl for {}".format(self.channel.name))
+        logging.info("interpreted rDNS XMl for {}".format(self.channel.name))
 
     def _catch_radioDNS(self, radioDNS_url):
         """

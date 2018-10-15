@@ -74,14 +74,13 @@ class Database:
         recording_tuple = self.execute(sql, [id], 'onerow')
 
         if recording_tuple is None:
-            logging.info("Could not find recording: {}".format(id))
+            logging.debug("Could not find recording: {}".format(id))
             return None
         else:
             #create epsiode entity
             recording = Recording(recording_tuple[1], recording_tuple[3], recording_tuple[4], recording_tuple[5], recording_tuple[6], recording_tuple[8])
             recording.id = id
             recording.channel_name = recording_tuple[2]
-            logging.info("{} found".format(recording))
             return recording
 
 
@@ -127,13 +126,12 @@ class Database:
         #EDIT probleme wenn doppelt gefunden
         channel_tuple = self.execute(sql, [channel_name], 'onerow')
         if channel_tuple is None:
-            logging.info("Could not find channel: {}".format(channel_name))
+            logging.debug("Could not find channel: {}".format(channel_name))
             return None
         else:
             #create channel entity
             channel = Channel(channel_tuple[1], channel_tuple[2], channel_tuple[3], channel_tuple[4],channel_tuple[5])
             channel.id = channel_tuple[0]
-            logging.info("{} found".format(channel))
             return channel
 
     def find_channel (self, channel_id):
@@ -141,13 +139,12 @@ class Database:
         #EDIT probleme wenn doppelt gefunden
         channel_tuple = self.execute(sql, [channel_id], 'onerow')
         if channel_tuple is None:
-            logging.info("Could not find channel: {}".format(channel_id))
+            logging.debug("Could not find channel: {}".format(channel_id))
             return None
         else:
             #create channel entity
             channel = Channel(channel_tuple[1], channel_tuple[2], channel_tuple[3], channel_tuple[4],channel_tuple[5])
             channel.id = channel_tuple[0]
-            logging.info("{} found".format(channel))
             return channel
 
     def list_channels (self):
@@ -202,13 +199,12 @@ class Database:
         sql = '''SELECT * FROM episodes WHERE episode_id = ? '''
         episode_tuple = self.execute(sql, [id], 'onerow')
         if episode_tuple is None:
-            logging.info("Could not find episode: {}".format(id))
+            logging.debug("Could not find episode: {}".format(id))
             return None
         else:
             #create epsiode entity
             episode = Episode(episode_tuple[1], episode_tuple[2], episode_tuple[3], episode_tuple[4], episode_tuple[5], episode_tuple[6])
             episode.id = id
-            logging.info("{} found".format(episode))
             return episode
 
 
@@ -221,7 +217,7 @@ class Database:
         sql = '''UPDATE episodes
                  SET  recording_id = ?
                  WHERE episode_id = ?'''
-        logging.info("updating episode: {} to recording: {}".format(episode_id, recording_id))
+        logging.debug("updating episode: {} to recording: {}".format(episode_id, recording_id))
         data = self.execute(sql,[recording_id, episode_id], 'lastrowid')
         return data
 

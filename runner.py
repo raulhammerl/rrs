@@ -5,6 +5,8 @@ import logging
 import time
 import datetime
 from subprocess import Popen
+from pathlib import Path
+
 
 import Database
 import Entities
@@ -12,9 +14,11 @@ import Recorder
 import RadioDNS
 import AudioDataHandler # edit
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 
 def main(argv=None):
+        home = str(Path.home())
+
         logging.info("\n" * 3 + "="*100)
         logging.info("starting recorder ")
 
@@ -42,7 +46,7 @@ def main(argv=None):
             time_to_record = 10 * int(argv[3]) #make minutes
 
         today = datetime.date.today()
-        date = time.strftime('%Y-%m-%d', time.localtime())
+        # date = time.strftime('%Y-%m-%d', time.localtime())
         start_time = time.strftime('%H-%M-%S', time.localtime())
         db = Database.Database(directory)
         db.init_RadioDB()
@@ -62,15 +66,15 @@ def main(argv=None):
                 radioDNS = RadioDNS.RadioDNS(directory, channel, recording, today)
                 radioDNS.get_radioDNS_metadata()
 
-                #start audio processing
-                # audio_data_handler = Audio_data_handler.Audio_data_handler(directory, today, channel)
-                # audio_data_handler.cut_blob_into_episodes()
-
             except RuntimeError as e:
               exit("ERROR: {}".format(e.message))
 
-            digester = "/Users/Raul/rrs/digesting_runner.py"
-            Popen(['python3', digester, directory, date, channel_name])
+            # start audio processing and feature analysis
+            digester = home + "/rrs/digesting_runner.py"
+            Popen(['python3', digester, directory, str(today), channel_name])
+
+            logging.info("Crawling process finished")
+            sys.exit(0)
 
 if __name__ == "__main__":
     main()
