@@ -15,20 +15,19 @@ import NetworkError
 @NetworkError.retryer(max_retries=7, timeout=12)
 class Recorder:
 
-        def __init__(self, db_file, today, start_time, channel , duration, directory):
+        def __init__(self, today, start_time, channel, directory, duration=None):
             #get database connection
-            self.db = Database.Database(db_file)
+            self.db = Database.Database(directory)
             self.channel = channel
             self.today = today
             self.duration = duration
             self.start_time = start_time
             self.directory = directory
             self.duration = duration
-
             self.buff_size = 1024*1024
 
             #set path for audio captures
-            self.target_path = os.path.join(self.directory,'Captures')
+            self.target_path = os.path.join(self.directory,'Data','Captures')
             self._set_file_name()
 
         def _set_file_name(self):
@@ -49,15 +48,17 @@ class Recorder:
 
             #start audio capturing
             try:
-                # self._write_stream_to_file(recording)
-                self._write_stream_till_tmr(recording)
+                if self.duration is not None:
+                    self._write_stream_for_time(recording)
+                else:
+                    self._write_stream_to_file(recording)
                 return recording
             except Exception as e:
                 logging.error("Could not complete capturing, because an exception occured: {}".format(e))
                 raise e
 
 
-        def _write_stream_to_file(self, recording):
+        def _write_stream_for_time(self, recording):
             not_ready = True
             logging.info("write {} \n to {}".format(
                self.channel.stream_url, recording.file
@@ -117,7 +118,7 @@ class Recorder:
                 # os.remove(recording.file)
                 raise e
 
-            except socket.timeout as e:
+            except timeout as e:
                 logging.warning("Capturing interupted. {}".format(e))
                 raise e
 
@@ -126,7 +127,7 @@ class Recorder:
                 # os.remove(recording.file)
                 raise e
 
-        def _write_stream_till_tmr(self, recording):
+        def _write_stream_to_file(self, recording):
             not_ready = True
             logging.info("write {} \n to {}".format(
                self.channel.stream_url, recording.file

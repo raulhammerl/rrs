@@ -14,8 +14,8 @@ import Helpers
 
 class RadioDNS:
 
-    def __init__(self, db_file, channel, directory, recording, date):
-        self.db = Database.Database(db_file)
+    def __init__(self, directory, channel, recording, date):
+        self.db = Database.Database(directory)
         self.recording = recording
         self.channel = channel
         self.date = str(date)

@@ -5,6 +5,7 @@ import os
 import logging
 
 from Entities import Episode, Channel, Recording
+import Helpers
 
 class dbopen(object):
     """
@@ -27,8 +28,9 @@ class dbopen(object):
 
 class Database:
 
-    def __init__(self, db_file):
-        self.db_file = db_file
+    def __init__(self, directory):
+        self.db_file = os.path.join(directory, 'Data', 'Database', 'db.sqlite')
+        Helpers.create_dir(self.db_file)
 
     def execute(self, statement, values, fetch):
         with  dbopen(self.db_file) as c:
@@ -243,7 +245,7 @@ class Database:
         sql = 'DELETE FROM episodes WHERE recording_id=?'
         self.execute(sql, [recording_id], None)
 
-    def init_RadioDB(self, db_file):
+    def init_RadioDB(self):
         sql_channels = '''CREATE TABLE if not exists channels(
         channel_id INTEGER PRIMARY KEY,
         name TEXT,
