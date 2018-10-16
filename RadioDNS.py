@@ -136,7 +136,6 @@ class RadioDNS:
 
             # find show_id. If show does not exist yet, create a new show
             show_id_tupel = self.db.find_show(name)
-            print("show tuple {}".format(show_id_tupel))
             logging.info("looking for show with name: {}".format(name))
 
             if show_id_tupel is None:

@@ -2,6 +2,10 @@ import logging
 import os
 import subprocess
 import pandas as pd
+from pathlib import Path
+
+
+home = str(Path.home())
 
 import Helpers
 
@@ -41,7 +45,7 @@ class MusicFeatureAnalyzer:
 
         extractor = '/usr/local/bin/essentia_streaming_extractor_music'
         if(os.path.exists(outputstr)==False):
-            subprocess.call([ r'/usr/local/bin/essentia_streaming_extractor_music', input, outputstr, '/Users/Raul/Dropbox/Documents/Uni/Bachelorarbeit/MusicAnalyzer/extractor_profile.yaml'])
+            subprocess.call([ r'/usr/local/bin/essentia_streaming_extractor_music', input, outputstr, home+ '/Dropbox/Documents/Uni/Bachelorarbeit/MusicAnalyzer/extractor_profile.yaml'])
             logging.debug('/usr/local/bin/essentia_streaming_extractor_music {} {}'.format(input, outputstr))
         return outputstr
 
@@ -49,11 +53,10 @@ class MusicFeatureAnalyzer:
         """metadata.audio_properties.* metadata.tags.musicbrainz_recordingid.0"""
         include = "--include lowlevel.* rhythm.* tonal.* "
         ignore = "--ignore *.min *.min.* *.max *.max.* *.dvar *.dvar2 *.dvar.* *.dvar2.* *.dmean *.dmean2 *.dmean.* *.dmean2.* *.cov.* *.icov.* rhythm.beats_position.* "
-        # outputstr = '/Users/Raul/Dropbox/Documents/Uni/Bachelorarbeit/MusicAnalyzer/{}.csv'.format(output)
         if(".sig" in input):
             output = input.replace(".sig",".csv")
             if(os.path.exists(output)==False):
-                call = ["/usr/local/bin/python3", '/Users/Raul/Dropbox/Documents/Uni/Bachelorarbeit/MusicAnalyzer/json_to_csv.py', '-i',input ,'-o', output, "--ignore", "rhythm.beats_position.*", "*mfcc*"]
+                call = ["/usr/local/bin/python3", home+'/Dropbox/Documents/Uni/Bachelorarbeit/MusicAnalyzer/json_to_csv.py', '-i',input ,'-o', output, "--ignore", "rhythm.beats_position.*", "*mfcc*"]
                 call2 = ["--ignore", "rhythm.beats_position.*"]
                 subprocess.call(call)
                 logging.debug(call)

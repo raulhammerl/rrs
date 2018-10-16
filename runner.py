@@ -71,7 +71,7 @@ def main(argv=None):
 
             # start audio processing and feature analysis
             digester = home + "/rrs/digesting_runner.py"
-            Popen(['python3', digester, directory, str(today), channel_name])
+            Popen(["/usr/local/bin/python3", digester, directory, str(today), channel_name])
 
             logging.info("Crawling process finished")
             sys.exit(0)
