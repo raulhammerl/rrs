@@ -38,7 +38,7 @@ class AudioDataHandler:
 
         try:
             # extract episode from file
-            call = ['ffmpeg','-y',
+            call = ['/usr/local/bin/ffmpeg','-y',
                     '-i', recording.file ,
                     '-ss', str(start_time) ,'-to', str(end_time),
                     '-c' ,'copy',
