@@ -31,7 +31,7 @@ def main(argv=None):
         [2] directory to store recordings
         [3] time to record (optional) otherwise recording will continue till 0:00h the next day
 
-        like: "./recorder_exec.py Br_Klassik /User/Data"
+        like: "./runner.py Br_Klassik /User/Data"
         '''
 
         #too little arguments
@@ -70,8 +70,8 @@ def main(argv=None):
               exit("ERROR: {}".format(e.message))
 
             # start audio processing and feature analysis
-            digester = home + "/rrs/digesting_runner.py"
-            Popen(["/usr/local/bin/python3", digester, directory, str(today), channel_name])
+            # digester = home + "/rrs/digesting_runner.py"
+            # Popen(["/usr/local/bin/python3", digester, directory, str(today), channel_name])
 
             logging.info("Crawling process finished")
             sys.exit(0)

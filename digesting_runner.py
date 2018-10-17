@@ -26,7 +26,8 @@ import os
 import AudioDataHandler
 import MusicFeatureAnalyzer
 import Database
-
+import RadioDNS
+from datetime import date, timedelta
 
 logging.basicConfig(level=logging.INFO)
 
@@ -35,14 +36,28 @@ def main(argv=None):
     if argv is None:
         argv = sys.argv
 
+
+    helpText ='''
+    Please enter the following argumets
+    [1] channel name
+    [2] directory
+    [3] date
+    like: "./digsting_runner.py /User/Data 2018-02-10 Br_Klassik"
+    '''
+
     #too little arguments
-    if len(argv) != 4:
+    if len(argv) != 3: #4
         print(helpText)
         sys.exit()
-    directory = argv[1]
-    date = argv[2]
-    channel_name = argv[3]
-    digest_daily_blob(directory, date, channel_name)
+
+    channel_name = argv[1]
+    directory = argv[2]
+    # date = argv[2]
+    yesterday = str(date.today() - timedelta(1))
+    print(yesterday)
+    print(type(yesterday))
+
+    digest_daily_blob(directory, yesterday, channel_name)
 
 
 def digest_daily_blob(directory, date, channel_name):
