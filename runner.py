@@ -44,6 +44,9 @@ def main(argv=None):
 
         if len(argv) == 4:
             time_to_record = 10 * int(argv[3]) #make minutes
+        else:
+            time_to_record = None 
+
 
         today = datetime.date.today()
         # date = time.strftime('%Y-%m-%d', time.localtime())

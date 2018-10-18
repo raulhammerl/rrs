@@ -30,6 +30,25 @@ class Recorder:
             self.target_path = os.path.join(self.directory,'Data','Captures')
             self._set_file_name()
 
+
+        def capture(self):
+            #create recording entity
+            recording = Recording(self.channel.id, self.today, self.start_time, self.duration, self.file, 0)
+            #start audio capturing
+            print("starting audio capturing")
+            try:
+                if self.duration is not None:
+                    self._write_stream_for_time(recording)
+                else:
+                    self._write_stream_to_file(recording)
+
+                print("finished audio capturing")
+                return recording
+            except Exception as e:
+                logging.error("Could not complete capturing, because an exception occured: {}".format(e))
+                raise e
+
+
         def _set_file_name(self):
             self.file = os.path.join(
                 self.target_path,
@@ -41,22 +60,6 @@ class Recorder:
                     self.start_time
                 )
             )
-
-        def capture(self):
-            #create recording entity
-            recording = Recording(self.channel.id, self.today, self.start_time, self.duration, self.file, 0)
-
-            #start audio capturing
-            try:
-                if self.duration is not None:
-                    self._write_stream_for_time(recording)
-                else:
-                    self._write_stream_to_file(recording)
-                return recording
-            except Exception as e:
-                logging.error("Could not complete capturing, because an exception occured: {}".format(e))
-                raise e
-
 
         def _write_stream_for_time(self, recording):
             not_ready = True

@@ -26,14 +26,18 @@ class RadioDNS:
         # get rDNS url
         radioDNS_url = self._get_url()
         logging.info("found rDNS url {} for {}".format(radioDNS_url, self.channel.name))
+        print("found rDNS url {} for {}".format(radioDNS_url, self.channel.name))
 
         # download programm information XML
         radionDNS_xml = self._catch_radioDNS(radioDNS_url)
         logging.info("catched rDNS XMl for {}".format(self.channel.name))
+        print("catched rDNS XMl for {}".format(self.channel.name))
 
         # parse XML to database
         self._read_radioDNS(radionDNS_xml)
         logging.info("interpreted rDNS XMl for {}".format(self.channel.name))
+        print("interpreted rDNS XMl for {}".format(self.channel.name))
+
 
     def _catch_radioDNS(self, radioDNS_url):
         """
