@@ -9,8 +9,10 @@ import logging
 from Entities import Episode, Channel
 import Database
 import Helpers
+import NetworkError
+    
 
-
+@NetworkError.retryer(max_retries=2, timeout=12)
 class RadioDNS:
 
     def __init__(self, directory, channel, recording, date):
@@ -30,8 +32,7 @@ class RadioDNS:
 
         # download programm information XML
         radionDNS_xml = self._catch_radioDNS(radioDNS_url)
-        logging.info("catched rDNS XMl for {}".format(self.channel.name))
-        print("catched rDNS XMl for {}".format(self.channel.name))
+
 
         # parse XML to database
         self._read_radioDNS(radionDNS_xml)
@@ -70,6 +71,8 @@ class RadioDNS:
             logging.error("Could not capture show metadata (radioDNS) from {}, \n because an exception occured: {}".format(radioDNS_url, e))
             raise e
 
+        logging.info("catched rDNS XMl for {} to {}".format(self.channel.name, filename))
+        print("catched rDNS XMl for {} to {}".format(self.channel.name, filename))
         return filename
 
     def _get_url(self):
