@@ -10,7 +10,7 @@ from Entities import Episode, Channel
 import Database
 import Helpers
 import NetworkError
-    
+
 
 @NetworkError.retryer(max_retries=2, timeout=12)
 class RadioDNS:
@@ -27,8 +27,8 @@ class RadioDNS:
     def get_radioDNS_metadata(self):
         # get rDNS url
         radioDNS_url = self._get_url()
-        logging.info("found rDNS url {} for {}".format(radioDNS_url, self.channel.name))
-        print("found rDNS url {} for {}".format(radioDNS_url, self.channel.name))
+        logging.info("created rDNS url {} for {}".format(radioDNS_url, self.channel.name))
+        print("created rDNS url {} for {}".format(radioDNS_url, self.channel.name))
 
         # download programm information XML
         radionDNS_xml = self._catch_radioDNS(radioDNS_url)
