@@ -32,7 +32,6 @@ def run_pca(df, dimension):
 
 def print_heatmap(data, n_comp, xlim):
     pca_trafo = PCA(n_components=n_comp)
-
     z_scaler = StandardScaler()
     z_data = z_scaler.fit_transform(data)
 
@@ -50,6 +49,10 @@ def print_heatmap(data, n_comp, xlim):
     mean = pca_inv_data.mean(axis=0)
     features_selected = np.argwhere((mean > 0.01) | (mean < -0.01))
     print(features_selected.size)
+    # print(features_selected)
+    # print(features_selected.descriptor)
+    # print(data.iloc[:features_selected])
+
 
     ## filter only high amplitude 'mean'
     plt.plot(pca_inv_data.mean(axis=0), '--o', label = 'mean')

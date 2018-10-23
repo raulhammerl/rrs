@@ -11,18 +11,15 @@ import Database
 import Helpers
 import NetworkError
 
-
-@NetworkError.retryer(max_retries=2, timeout=12)
 class RadioDNS:
 
-    def __init__(self, directory, channel, recording, date):
+    def __init__(self, directory, channel_name, recording, date):
         self.db = Database.Database(directory)
         self.recording = recording
-        self.channel = channel
+        self.channel = self.db.find_channel_by_name(channel_name)
         self.date = str(date)
         self.directory = directory
         self.directory = os.path.join(directory,'Data','Captures')
-
 
     def get_radioDNS_metadata(self):
         # get rDNS url
@@ -32,7 +29,6 @@ class RadioDNS:
 
         # download programm information XML
         radionDNS_xml = self._catch_radioDNS(radioDNS_url)
-
 
         # parse XML to database
         self._read_radioDNS(radionDNS_xml)

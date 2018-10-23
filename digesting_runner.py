@@ -29,7 +29,7 @@ import Database
 import RadioDNS
 from datetime import date, timedelta
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.DEBUG)
 
 
 def main(argv=None):
@@ -46,28 +46,47 @@ def main(argv=None):
     '''
 
     #too little arguments
-    if len(argv) != 3: #4
+
+    if len(argv) < 3 or len(argv) > 4:
         print(helpText)
+        print(len(argv))
         sys.exit()
 
     channel_name = argv[1]
     directory = argv[2]
-    # date = argv[2]
-    yesterday = str(date.today() - timedelta(1))
-    print(yesterday)
-    print(type(yesterday))
+
+    if len(argv) == 4:
+        yesterday = argv[3]
+    else:
+        yesterday = str(date.today() - timedelta(1))
+        print(yesterday)
+        print(type(yesterday))
 
     digest_daily_blob(directory, yesterday, channel_name)
 
 
 def digest_daily_blob(directory, date, channel_name):
     db = Database.Database(directory)
+
+    # find all recordigns from date
+    all_recordings = db.find_recordings_by_date(date)
+    print(all_recordings)
+    for recording in all_recordings:
+        # get recording entity
+        recording_id = recording[0]
+        recording = db.find_recording(recording_id)
+        logging.debug("Recording found: {}".format(recording))
+
+        # start radioDNS parsing
+        radioDNS = RadioDNS.RadioDNS(directory, channel_name, recording, date)
+        radioDNS.get_radioDNS_metadata()
+
     # find all episodes from date
     all_rows = db.find_episodes_by_date(date)
     logging.debug("trying to find episodes with date: {}".format(date))
 
     for episode in all_rows:
-        #get episode attributes
+        #get episode entity
         episode_id = episode[0]
         episode = db.find_episode_by_id(episode_id)
         logging.debug("found episode with id: {}".format(episode_id))
@@ -76,19 +95,25 @@ def digest_daily_blob(directory, date, channel_name):
         recording = db.find_recording(episode.recording_id)
         logging.debug("Recording found: {}".format(recording))
 
-
+        ##try
         # check if recording is already an extract if so skip episode
-        if recording.is_episode is 1: #is episode to is_analized
-            logging.debug("recording is already an episode")
-            continue
+        try:
+            if recording.is_episode is 1: #is episode to is_analized
+                logging.debug("recording is already an episode")
+                continue
 
-        audio_data_handler = AudioDataHandler.AudioDataHandler(directory, date, channel_name)
-        extracted_episode = audio_data_handler.extract_episode(episode, recording)
+            audio_data_handler = AudioDataHandler.AudioDataHandler(directory, date, channel_name)
+            extracted_episode = audio_data_handler.extract_episode(episode, recording)
 
-        if extracted_episode is not None:
-            music_feature_analyzer = MusicFeatureAnalyzer.MusicFeatureAnalyzer(directory)
-            music_feature_analyzer.analyze_episode(extracted_episode)
+            if extracted_episode is not None:
+                music_feature_analyzer = MusicFeatureAnalyzer.MusicFeatureAnalyzer(directory)
+                music_feature_analyzer.analyze_episode(extracted_episode)
+            else:
+                logging.warning("episoded could not be extracted")
 
+
+        except RuntimeError as e:
+          exit("ERROR: {}".format(e.message))
 
 
     logging.info("Digesting process finished")

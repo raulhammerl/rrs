@@ -16,7 +16,6 @@ class MusicFeatureAnalyzer:
         self.directory = directory
         self.df = self._load_df()
 
-
     def analyze_episode(self, file):
         sig = self._run_feature_analysis(file)
         csv = self._create_csv_from_sig(sig)
@@ -44,25 +43,33 @@ class MusicFeatureAnalyzer:
         Helpers.create_dir(outputstr)
 
         extractor = '/usr/local/bin/essentia_streaming_extractor_music'
-        if(os.path.exists(outputstr)==False):
-            subprocess.call([ r'/usr/local/bin/essentia_streaming_extractor_music', input, outputstr, home+ '/Dropbox/Documents/Uni/Bachelorarbeit/MusicAnalyzer/extractor_profile.yaml'])
-            logging.debug('/usr/local/bin/essentia_streaming_extractor_music {} {}'.format(input, outputstr))
-        return outputstr
+        try:
+            if(os.path.exists(outputstr)==False):
+                subprocess.call([ r'/usr/local/bin/essentia_streaming_extractor_music', input, outputstr, home+ '/Dropbox/Documents/Uni/Bachelorarbeit/MusicAnalyzer/extractor_profile.yaml'])
+                logging.debug(' features being analyzed from: {} to: {}'.format(input, outputstr))
+            return outputstr
+
+        except OSError as e:
+          exit("ERROR: {}".format(e.message))
+
+
 
     def _create_csv_from_sig(self, input):
         """metadata.audio_properties.* metadata.tags.musicbrainz_recordingid.0"""
         include = "--include lowlevel.* rhythm.* tonal.* "
         ignore = "--ignore *.min *.min.* *.max *.max.* *.dvar *.dvar2 *.dvar.* *.dvar2.* *.dmean *.dmean2 *.dmean.* *.dmean2.* *.cov.* *.icov.* rhythm.beats_position.* "
-        if(".sig" in input):
-            output = input.replace(".sig",".csv")
-            if(os.path.exists(output)==False):
-                call = ["/usr/local/bin/python3", home+'/Dropbox/Documents/Uni/Bachelorarbeit/MusicAnalyzer/json_to_csv.py', '-i',input ,'-o', output, "--ignore", "rhythm.beats_position.*", "*mfcc*"]
-                call2 = ["--ignore", "rhythm.beats_position.*"]
-                subprocess.call(call)
-                logging.debug(call)
+        try:
+            if(".sig" in input):
+                output = input.replace(".sig",".csv")
+                if(os.path.exists(output)==False):
+                    call = ["/usr/local/bin/python3", home+'/Dropbox/Documents/Uni/Bachelorarbeit/MusicAnalyzer/json_to_csv.py', '-i',input ,'-o', output, "--ignore", "rhythm.beats_position.*", "*mfcc*"]
+                    subprocess.call(call)
+                    logging.debug(call)
 
-        return output
+            return output
 
+        except OSError as e:
+            exit("ERROR: {}".format(e.message))
 
 
 
@@ -97,7 +104,6 @@ class MusicFeatureAnalyzer:
 
     def _write_to_csv(self, df, directory):
         file_name = directory + "pandasDF.csv"
-
         df.to_csv(file_name, encoding='utf-8', index=False)
 
     def _write_to_excel(self, pages, directory):

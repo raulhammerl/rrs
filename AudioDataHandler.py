@@ -113,8 +113,12 @@ class AudioDataHandler:
         elif episode_start_time < recording_start_time:
             start_time = 0
 
+        # cut episode to an hour max for efficiency reasons
+        if (episode_end_time - start_time) > 3600:
+            end_time = start_time + 3600
+
         # check if episode ended before recording
-        if episode_end_time < recording_end_time:
+        elif episode_end_time < recording_end_time:
             end_time = episode_end_time - recording_start_time
 
         # check if episode ended afer recording

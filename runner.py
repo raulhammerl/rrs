@@ -45,7 +45,7 @@ def main(argv=None):
         if len(argv) == 4:
             time_to_record = 10 * int(argv[3]) #make minutes
         else:
-            time_to_record = None 
+            time_to_record = None
 
 
         today = datetime.date.today()
@@ -64,10 +64,6 @@ def main(argv=None):
                 # start recording process
                 recorder = Recorder.Recorder(today, start_time, channel, directory, time_to_record)
                 recording = recorder.capture()
-
-                #start radioDNS parsing
-                radioDNS = RadioDNS.RadioDNS(directory, channel, recording, today)
-                radioDNS.get_radioDNS_metadata()
 
             except RuntimeError as e:
               exit("ERROR: {}".format(e.message))
