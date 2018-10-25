@@ -37,6 +37,30 @@ class AudioDataHandler:
         logging.debug("extracting episode to: {}".format(output_file))
 
         try:
+            # create new recording entity
+            # recording.file = output_file
+            # recording.is_episode = 1
+            # recording.duration = Helpers.get_time_from_sec(end_time - start_time)
+
+            #format entity for db
+            new_recording=(
+                recording.channel_id,
+                recording.channel_name,
+                str(recording.date),
+                str(recording.start_time),
+                recording.duration,
+                # recording.file,
+                # recording.file_size,
+                # recording.is_episode,
+                output_file,
+                1,
+                Helpers.get_time_from_sec(end_time - start_time)
+            )
+
+            # save entity in db
+            recording.id = self.db.create_recording(new_recording)
+            self.db.update_episode_recording(episode.id, recording.id)
+
             # extract episode from file
             call = ['/usr/local/bin/ffmpeg','-y',
                     '-i', recording.file ,
@@ -47,27 +71,6 @@ class AudioDataHandler:
                      '-metadata', 'artist={}'.format(self.channel.id),
                      output_file]
             subprocess.call(call)
-
-            # create new recording entity
-            recording.file = output_file
-            recording.is_episode = 1
-            recording.duration = Helpers.get_time_from_sec(end_time - start_time)
-
-            #format entity for db
-            new_recording=(
-                recording.channel_id,
-                recording.channel_name,
-                str(recording.date), #edit missing formation!!
-                str(recording.start_time),
-                recording.duration,
-                recording.file,
-                recording.file_size,
-                recording.is_episode
-            )
-
-            # save entity in db
-            recording.id = self.db.create_recording(new_recording)
-            self.db.update_episode_recording(episode.id, recording.id)
 
             return output_file
 

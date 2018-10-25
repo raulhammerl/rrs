@@ -2,23 +2,26 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import os
-
 from sklearn.preprocessing import StandardScaler
 
-import PCA
 
+from sklearn.cluster import DBSCAN
+
+
+import PCA
+import kmeans
 
 class NumberCruncher():
 
     def __init__(self, directory):
         self.directory = directory
-        self._load_df('22-10')
+        self._load_df('df')
 
 
     def _load_df(self, name):
-        df_file = os.path.join(self.directory,'Database', name +'.pkl')
+        df_file = os.path.join(self.directory, 'Data', 'Database', name +'.pkl')
         self.df = pd.read_pickle(df_file)
-
+        print(self.df)
 
     def _run_normalizer(self):
         scaler = Normalizer().fit(X)
@@ -103,18 +106,36 @@ class NumberCruncher():
         self._drop_columns_containing("metadata")
 
         self.df = pd.concat([meta_df, self.df], axis=1)
+        print (self.df)
         return self.df
+
+def dbscan(X, pca_2d):
+    # DBSCAN(algorithm='auto', eps=3, leaf_size=30, metric='euclidean',
+    #     metric_params=None, min_samples=2, n_jobs=None, p=None)
+
+    clustering = DBSCAN(eps=3, min_samples=2).fit(X)
+    print(clustering)
+    print(clustering.labels_)
+
+    for i in range(0, pca_2d.shape[0]):
+        if clustering.labels_[i] == 0:
+            c1 = plt.scatter(pca_2d[i,0],pca_2d[i,1],c='r',marker='+')
+        elif clustering.labels_[i] == 1:
+            c2 = plt.scatter(pca_2d[i,0],pca_2d[i,1],c='g',marker='o')
+        elif clustering.labels_[i] == -1:
+            c3 = plt.scatter(pca_2d[i,0],pca_2d[i,1],c='b', marker='*')
+        # plt.legend([c1, c2, c3], ['Cluster 1', 'Cluster 2', 'Noise'])
+    plt.title('DBSCAN finds 2 clusters and noise')
+    plt.show()
 
 
 
 def main(self):
-    self._clean_df()
-    self.df = df_clean
-
-
-    df_target = self.df ['channel_id']
+    # self._clean_df()
+    y = self.df ['channel_id']
     self.df.drop(['file_name',  'show_id', 'recording_id', 'channel_id'], axis=1, inplace=True)
 
+    self.df = self.df.dropna(axis=1, how='any')
 
     self._drop_columns_containing("beats_position")
     self._drop_columns_containing("mfcc")
@@ -126,14 +147,22 @@ def main(self):
     self._drop_columns_containing("min")
     self._drop_columns_containing("median")
 
-    # self._run_scaler()
-
-    # pca = PCA.run_pca(self.df, 100)
+    self._run_scaler()
+    # pca = PCA.run_pca(self.df, 15)
+    kpca = PCA.run_kpca(self.df, 15)
+    pca_2d = PCA.run_pca(self.df, 2)
     # PCA.print_cumsum_trend(pca)
-    PCA.print_heatmap(self.df, 20, 400)
+    # kmeans.calculate_k_means(pca, 6, y)
+
+    # PCA.print_cumsum_trend_kpca(pca)
+    # PCA.print_cumsum_trends_vs(kpca, pca)
+    # X_tsne = PCA.run_tsne(kpca, y, 2)
+    dbscan(kpca, pca_2d)
+    # PCA.print_heatmap(self.df, 20, 400)
 
 
 if __name__ == "__main__":
-    directory = '/Users/Raul/Dropbox/Documents/Uni/Bachelorarbeit/'
+    # directory = '/Users/Raul/Dropbox/Documents/Uni/Bachelorarbeit/AudioRecorder'
+    directory = '/Users/Raul/Dropbox/Documents/Uni/Bachelorarbeit/Database'
     nc = NumberCruncher(directory)
     main(nc)

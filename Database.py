@@ -89,6 +89,11 @@ class Database:
         data = self.execute(sql, [date], 'allrows')
         return data
 
+    def find_recording_by_date_and_channel(self, date, channel_name):
+        sql = '''SELECT * FROM recordings WHERE recording_date = ? AND channel_name = ?'''
+        data = self.execute(sql, [date, channel_name], 'allrows')
+        return data
+
     def update_recording_path(self, id, path):
         sql = '''UPDATE recordings
                  SET file_path = ?

@@ -55,6 +55,9 @@ def main(argv=None):
     channel_name = argv[1]
     directory = argv[2]
 
+    print(argv)
+    print(len(argv))
+
     if len(argv) == 4:
         yesterday = argv[3]
     else:
@@ -67,16 +70,15 @@ def main(argv=None):
 
 def digest_daily_blob(directory, date, channel_name):
     db = Database.Database(directory)
-
     # find all recordigns from date
-    all_recordings = db.find_recordings_by_date(date)
+    all_recordings = db.find_recording_by_date_and_channel(date, channel_name)
     print(all_recordings)
     for recording in all_recordings:
         # get recording entity
         recording_id = recording[0]
         recording = db.find_recording(recording_id)
         logging.debug("Recording found: {}".format(recording))
-
+        # if(recording.channel == channel_name):
         # start radioDNS parsing
         radioDNS = RadioDNS.RadioDNS(directory, channel_name, recording, date)
         radioDNS.get_radioDNS_metadata()
