@@ -27,7 +27,8 @@ class MusicFeatureAnalyzer:
         Helpers.create_dir(df_file)
 
         if os.path.exists(df_file):
-            df = pd.read_pickle(df_file)
+            with open(df_file, 'rb') as f:
+                df = pd.read_pickle(f)
         else:
             df = None
 
@@ -35,7 +36,8 @@ class MusicFeatureAnalyzer:
 
     def _save_df(self):
         df_file = os.path.join(self.directory, 'Data', 'Database', 'music_features.pkl')
-        self.df.to_pickle(df_file)
+        with open(df_file, 'wb') as f:
+            self.df.to_pickle(f)
 
     def _run_feature_analysis(self, input):
         outputstr = (input.replace(".mp3","") + '.sig')

@@ -25,7 +25,6 @@ class RadioDNS:
         # get rDNS url
         radioDNS_url = self._get_url()
         logging.info("created rDNS url {} for {}".format(radioDNS_url, self.channel.name))
-        print("created rDNS url {} for {}".format(radioDNS_url, self.channel.name))
 
         # download programm information XML
         radionDNS_xml = self._catch_radioDNS(radioDNS_url)
@@ -33,7 +32,6 @@ class RadioDNS:
         # parse XML to database
         self._read_radioDNS(radionDNS_xml)
         logging.info("interpreted rDNS XMl for {}".format(self.channel.name))
-        print("interpreted rDNS XMl for {}".format(self.channel.name))
 
 
     def _catch_radioDNS(self, radioDNS_url):
@@ -63,8 +61,9 @@ class RadioDNS:
 
             urllib.request.urlretrieve(radioDNS_url, filename)
 
-        except Exception as e:
+        except (urllib.error.HTTPError, URLError) as e:
             logging.error("Could not capture show metadata (radioDNS) from {}, \n because an exception occured: {}".format(radioDNS_url, e))
+
             raise e
 
         logging.info("catched rDNS XMl for {} to {}".format(self.channel.name, filename))

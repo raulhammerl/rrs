@@ -89,8 +89,8 @@ class Database:
         data = self.execute(sql, [date], 'allrows')
         return data
 
-    def find_recording_by_date_and_channel(self, date, channel_name):
-        sql = '''SELECT * FROM recordings WHERE recording_date = ? AND channel_name = ?'''
+    def find_captures_by_date_and_channel(self, date, channel_name):
+        sql = '''SELECT * FROM recordings WHERE recording_date = ? AND channel_name = ? AND is_episode = 0'''
         data = self.execute(sql, [date, channel_name], 'allrows')
         return data
 
