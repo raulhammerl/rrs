@@ -55,11 +55,12 @@ class put_recordings_in_db():
         t = os.stat(path).st_birthtime
         d = datetime.datetime.fromtimestamp(t)
         d, t = str(d).split(" ")
-        return(d,t)
+        return(d,t[:8])
 
     def _get_duration(self, file):
         tag = TinyTag.get(file)
         duration = int(tag.duration)
+        print(duration)
         return Helpers.get_time_from_sec(duration)
 
     def _get_size(self,file):
