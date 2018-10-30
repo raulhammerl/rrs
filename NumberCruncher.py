@@ -10,18 +10,21 @@ from sklearn.cluster import DBSCAN
 
 import PCA
 import kmeans
+import knn
+import tsne
 
 class NumberCruncher():
 
     def __init__(self, directory):
         self.directory = directory
-        self._load_df('df')
+        self._load_df('27-10')
 
 
     def _load_df(self, name):
         df_file = os.path.join(self.directory, 'Data', 'Database', name +'.pkl')
-        self.df = pd.read_pickle(df_file)
-        print(self.df)
+        with open(df_file, "rb") as f:
+            self.df = pd.read_pickle(f)
+
 
     def _run_normalizer(self):
         scaler = Normalizer().fit(X)
@@ -47,22 +50,6 @@ class NumberCruncher():
         to_select = [c for c in self.df.columns if(cue in c)]
         self.df.loc[:, to_select]
 
-    def _get_nearest_neigbours(self, df, df_target, n):
-        ## Instantiate the model with n neighbors.
-        X_train, X_test, y_train, y_test = train_test_split(df, df_target, test_size=0.3) # 70% training and 30% tes
-
-        knn = KNeighborsClassifier(n_neighbors=n)
-        ## Fit the model on the training data.
-        knn.fit(X_train, y_train)
-        ## See how the model performs on the test data.
-        knn.score(X_test, y_test)
-
-        #Predict the response for test dataset
-        y_pred = knn.predict(X_test)
-
-        # Model Accuracy, how often is the classifier correct?
-        print("Accuracy:", metrics.accuracy_score(y_test, y_pred))
-
 
     def _write_to_excel(self, pages):
         output = os.path.join(self.directory, 'Data', 'Database', 'output.xlsx')
@@ -73,6 +60,7 @@ class NumberCruncher():
             page.to_excel(writer,('Sheet'+ str(i)))
             i += 1
         writer.save()
+
     def _write_to_csv(self, directory):
         file_name = os.path.join(self.directory, 'Data', 'Database', 'pandasDF.csv')
         self.df.to_csv(file_name, encoding='utf-8', index=False)
@@ -106,8 +94,34 @@ class NumberCruncher():
         self._drop_columns_containing("metadata")
 
         self.df = pd.concat([meta_df, self.df], axis=1)
-        print (self.df)
         return self.df
+
+
+    def slct_shows_w_x_instances(self, df, n, k):
+        df_selected = pd.DataFrame()
+        i=0
+        shows = []
+        for show_id in range(df['show_id'].max()):
+            one_show = df[df['show_id'] == show_id]
+            one_show = one_show.head(k) # only if equal no of instances
+            if len(one_show.index) >= n:
+                # print('yees')
+                i= i+1
+                shows.append(show_id)
+                df_selected = df_selected.append(one_show)
+        print(shows)
+        print(i)
+        print(df_selected['file_name'])
+        return df_selected
+
+    def slct_x_and_y(self):
+        y = self.df ['channel_id']
+        X = self.df.drop(['file_name',  'show_id', 'recording_id', 'channel_id'], axis=1)
+        return (X,y)
+
+    def _does_contain_nan(self, df):
+        return self.df.isnull().values.any()
+
 
 def dbscan(X, pca_2d):
     # DBSCAN(algorithm='auto', eps=3, leaf_size=30, metric='euclidean',
@@ -129,13 +143,19 @@ def dbscan(X, pca_2d):
     plt.show()
 
 
+def _load_df2(df1, directory, name):
+    df2_file = os.path.join(directory, 'Data', 'Database', name +'.pkl')
+    df2 = pd.read_pickle(df2_file)
+    df_concat = df1.append(df2, ignore_index=True)
+    print(df_concat.shape)
+    return df_concat
+
 
 def main(self):
-    # self._clean_df()
-    y = self.df ['channel_id']
-    self.df.drop(['file_name',  'show_id', 'recording_id', 'channel_id'], axis=1, inplace=True)
-
-    self.df = self.df.dropna(axis=1, how='any')
+    self._clean_df()
+    self.df = _load_df2(self.df, directory,'df')
+    # y = self.df ['channel_id']
+    # self.df.drop(['file_name',  'show_id', 'recording_id', 'channel_id'], axis=1, inplace=True)
 
     self._drop_columns_containing("beats_position")
     self._drop_columns_containing("mfcc")
@@ -146,20 +166,47 @@ def main(self):
     self._drop_columns_containing("max")
     self._drop_columns_containing("min")
     self._drop_columns_containing("median")
+    # print(self.df.shape)
+    self.df = self.slct_shows_w_x_instances(self.df, 10, 10)
+    # print(self.df.shape)
+    # df = self.df.duplicated(subset=None, keep='first')
+    # print('dupes: ', df.sum())
+    #
+    # show1 = self.df[self.df['show_id'] == 82]
+    # show1 = show1.head(5)
+    # # print(show1)
+    # show2 = self.df[self.df['show_id'] == 85]
+    # show2 = show2.head(5)
+    # # print(show2)
+    # self.df = pd.concat([show1, show2], axis=0)
+    # print(self.df.shape)
 
+
+    self._write_to_excel([self.df])
+    y = self.df ['show_id']
+    self.df.drop(['file_name',  'show_id', 'recording_id', 'channel_id'], axis=1, inplace=True)
+
+    self.df = self.df.dropna(axis=1, how='any')
+    self.df = self.df.reset_index()
     self._run_scaler()
-    # pca = PCA.run_pca(self.df, 15)
-    kpca = PCA.run_kpca(self.df, 15)
-    pca_2d = PCA.run_pca(self.df, 2)
-    # PCA.print_cumsum_trend(pca)
-    # kmeans.calculate_k_means(pca, 6, y)
 
+    X_kpca = PCA.run_kpca(self.df, 15)
+    print(self.contain_nan(X_kpca))
+    # PCA.print_cumsum_trend(pca)
     # PCA.print_cumsum_trend_kpca(pca)
     # PCA.print_cumsum_trends_vs(kpca, pca)
-    # X_tsne = PCA.run_tsne(kpca, y, 2)
-    dbscan(kpca, pca_2d)
-    # PCA.print_heatmap(self.df, 20, 400)
+    X_tsne = tsne.run_tsne(self.df, 2, 35)
+    tsne.scatter_tsne(X_tsne, y)
 
+    kmeans.calculate_k_means(X_kpca, 2, y)
+    kmeans.calculate_k_means(X_tsne, 2, y)
+    # dbscan(kpca, pca_2d)
+    # PCA.print_heatmap(self.df, 20, 400)
+    # knn._get_nearest_neigbours(X_kpca, y, 2)
+    # knn._get_nearest_neigbours(X_tsne, y, 2)
+
+    knn._kkn_cross_validation(X_kpca,y)
+    knn._kkn_cross_validation(X_tsne,y)
 
 if __name__ == "__main__":
     # directory = '/Users/Raul/Dropbox/Documents/Uni/Bachelorarbeit/AudioRecorder'

@@ -5,7 +5,6 @@ import logging
 import time
 import datetime
 from subprocess import Popen
-from pathlib import Path
 
 
 import Database
@@ -17,8 +16,6 @@ import AudioDataHandler # edit
 logging.basicConfig(level=logging.INFO)
 
 def main(argv=None):
-        home = str(Path.home())
-
         logging.info("\n" * 3 + "="*100)
         logging.info("starting recorder ")
 

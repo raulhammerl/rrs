@@ -1,6 +1,6 @@
 import datetime
 import os
-import logging 
+import logging
 
 def get_sec(time_str):
     if (isinstance(time_str, str) == False):

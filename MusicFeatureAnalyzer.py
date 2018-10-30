@@ -41,7 +41,7 @@ class MusicFeatureAnalyzer:
 
     def _run_feature_analysis(self, input):
         outputstr = (input.replace(".mp3","") + '.sig')
-        outputstr = (outputstr.replace("Captures","Features"))
+        outputstr = (outputstr.replace("Extracts", "Features"))
         Helpers.create_dir(outputstr)
 
         extractor = '/usr/local/bin/essentia_streaming_extractor_music'
@@ -96,7 +96,7 @@ class MusicFeatureAnalyzer:
     def _append_to_df(self, file):
         if(".csv" in file):
             if self.df is None:
-                df = pd.read_csv(file)
+                self.df = pd.read_csv(file)
                 # self.df = self._clean_df(df)
                 logging.debug("no df found, so a new one was created from: {}".format(file))
             else:

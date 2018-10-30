@@ -26,9 +26,10 @@ class AudioDataHandler:
             return
 
     def _set_file_name(self, episode, recording):
-        file_name = recording.file[:-12] \
+        file_name = recording.file[:-12].replace("/Captures", "/Extracts") \
                     + str(episode.start_time).replace(":", "-") + "_show" \
                     + str(episode.show_id) + ".mp3"
+        logging.warning(file_name)
         return file_name
 
 
@@ -53,14 +54,15 @@ class AudioDataHandler:
                 # recording.file_size,
                 # recording.is_episode,
                 output_file,
-                1,
-                Helpers.get_time_from_sec(end_time - start_time)
+                0, # file_size
+                1 # is_episode
             )
 
             # save entity in db
             recording.id = self.db.create_recording(new_recording)
             self.db.update_episode_recording(episode.id, recording.id)
 
+            Helpers.create_dir(output_file)
             # extract episode from file
             call = ['/usr/local/bin/ffmpeg','-y',
                     '-i', recording.file ,
@@ -71,7 +73,6 @@ class AudioDataHandler:
                      '-metadata', 'artist={}'.format(self.channel.id),
                      output_file]
             subprocess.call(call)
-
             return output_file
 
         except Exception as e:

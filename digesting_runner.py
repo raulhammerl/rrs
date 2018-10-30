@@ -29,7 +29,7 @@ import Database
 import RadioDNS
 from datetime import date, timedelta
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 
 
 def main(argv=None):
@@ -71,8 +71,8 @@ def main(argv=None):
 def digest_daily_blob(directory, date, channel_name):
     db = Database.Database(directory)
     # find all recordigns from date
-    all_recordings = db.find_recording_by_date_and_channel(date, channel_name)
-    print(all_recordings)
+    all_recordings = db.find_captures_by_date_and_channel(date, channel_name)
+    logging.info("{} recordings with date:{} from channel:{} \n {}".format(len(all_recordings),date, channel_name, all_recordings))
     for recording in all_recordings:
         # get recording entity
         recording_id = recording[0]
@@ -97,8 +97,6 @@ def digest_daily_blob(directory, date, channel_name):
         recording = db.find_recording(episode.recording_id)
         logging.debug("Recording found: {}".format(recording))
 
-        ##try
-        # check if recording is already an extract if so skip episode
         try:
             if recording.is_episode is 1: #is episode to is_analized
                 logging.debug("recording is already an episode")
@@ -111,7 +109,7 @@ def digest_daily_blob(directory, date, channel_name):
                 music_feature_analyzer = MusicFeatureAnalyzer.MusicFeatureAnalyzer(directory)
                 music_feature_analyzer.analyze_episode(extracted_episode)
             else:
-                logging.warning("episoded could not be extracted")
+                logging.error("episoded could not be extracted")
 
 
         except RuntimeError as e:

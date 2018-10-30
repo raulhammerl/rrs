@@ -31,6 +31,7 @@ class Database:
     def __init__(self, directory):
         self.db_file = os.path.join(directory, 'Data', 'Database', 'db.sqlite')
         Helpers.create_dir(self.db_file)
+        print("db opened", self.db_file)
 
     def execute(self, statement, values, fetch):
         with  dbopen(self.db_file) as c:
@@ -58,7 +59,7 @@ class Database:
         """create a table from the create_table_sql statement"""
         self.execute(create_table_sql, None, None)
 
-    def create_recording (self, recording):
+    def create_recording(self, recording):
         """
         Create a new recording
         :param recording:
