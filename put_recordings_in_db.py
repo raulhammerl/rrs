@@ -22,12 +22,10 @@ class put_recordings_in_db():
         self.db.init_RadioDB()
 
     def run(self):
-        dirss = []
         for root, dirs, files in os.walk(self.directory_captures):
-            dirss.extend(dirs)
             for basename in files:
                 if(".mp3" in basename) & ("show" not in basename):
-                    channel_name = dirss[0]
+                    channel_name = self._get_channel(basename)
                     file = os.path.join( root, basename)
                     t = self._get_creation_time(file)
                     date = t[0]
@@ -63,9 +61,24 @@ class put_recordings_in_db():
         print(duration)
         return Helpers.get_time_from_sec(duration)
 
-    def _get_size(self,file):
+    def _get_size(self, file):
         tag = TinyTag.get(file)
         return tag.filesize
+
+    def _get_channel(self, basename):
+        if('Bayern_1' in basename):
+            channel = 'Bayern_1'
+        elif('Bayern_3' in basename):
+            channel = 'Bayern_3'
+        elif('B5_Aktuell' in basename):
+            channel = 'B5_Aktuell'
+        elif('WDR2' in basename):
+            channel = 'WDR2'
+        elif('Br_Klassik' in basename):
+            channel = 'Br_Klassik'
+        elif('Puls' in basename):
+            channel = 'Puls'
+        return channel
 
 
 def main():
