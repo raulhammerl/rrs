@@ -4,6 +4,9 @@ import subprocess
 import pandas as pd
 from pathlib import Path
 home = str(Path.home())
+if ('root' in home):
+    home = '/Users/kingkraul'
+
 
 import AudioFeatureDF
 import Helpers
@@ -15,6 +18,7 @@ class MusicFeatureAnalyzer:
         self.directory = directory
         # self.df = AudioFeatureDF.AudioFeatureDF(directory)
         self.df = self._load_df()
+
 
     def analyze_episode(self, file):
         sig = self._run_feature_analysis(file)
@@ -153,12 +157,12 @@ class MusicFeatureAnalyzer:
         df = pd.concat([meta_df, df], axis=1)
         return df
 
-def main():
-    directory = '/Users/Raul/Features'
-    MFA = MusicFeatureAnalyzer(directory)
-    df = MFA._create_df_from_csv(directory)
-    MFA._append_to_df()
-
-
-if __name__ == "__main__":
-    main()
+# def main():
+#     directory = '/Users/Raul/Features'
+#     MFA = MusicFeatureAnalyzer(directory)
+#     df = MFA._create_df_from_csv(directory)
+#     MFA._append_to_df()
+#
+#
+# if __name__ == "__main__":
+#     main()

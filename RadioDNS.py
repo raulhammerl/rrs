@@ -51,24 +51,26 @@ class RadioDNS:
             )
         )
 
-        filename = os.path.join(self.directory, slug)
+        file = os.path.join(self.directory, slug)
+        if os.path.isfile(file):
+            logging.debug("rDNS already downloaded")
+            return file
+        else:
+            try:
+                dirname = os.path.dirname(file)
+                if not os.path.isdir(dirname):
+                    os.makedirs(dirname)
 
+                urllib.request.urlretrieve(radioDNS_url, file)
 
-        try:
-            dirname = os.path.dirname(filename)
-            if not os.path.isdir(dirname):
-                os.makedirs(dirname)
+            except (urllib.error.HTTPError, URLError) as e:
+                logging.error("Could not capture show metadata (radioDNS) from {}, \n because an exception occured: {}".format(radioDNS_url, e))
 
-            urllib.request.urlretrieve(radioDNS_url, filename)
+                raise e
 
-        except (urllib.error.HTTPError, URLError) as e:
-            logging.error("Could not capture show metadata (radioDNS) from {}, \n because an exception occured: {}".format(radioDNS_url, e))
-
-            raise e
-
-        logging.info("catched rDNS XMl for {} to {}".format(self.channel.name, filename))
-        print("catched rDNS XMl for {} to {}".format(self.channel.name, filename))
-        return filename
+            logging.info("catched rDNS XMl for {} to {}".format(self.channel.name, file))
+            print("catched rDNS XMl for {} to {}".format(self.channel.name, file))
+            return file
 
     def _get_url(self):
         base_url = self.channel.radiodns_url

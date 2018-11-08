@@ -13,7 +13,7 @@ def process_old_captures(d1, d2):
             call(call)
 
 def main():
-    directory = '/Volumes/Ba'
+    directory = '/Volumes/Ba/'
     month = 10
     day1 = 20
     day2 = 30

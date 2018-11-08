@@ -1,8 +1,10 @@
 import logging
 import os
 import subprocess
+
 import Database
 import Helpers
+
 
 
 class AudioDataHandler:
@@ -29,55 +31,53 @@ class AudioDataHandler:
         file_name = recording.file[:-12].replace("/Captures", "/Extracts") \
                     + str(episode.start_time).replace(":", "-") + "_show" \
                     + str(episode.show_id) + ".mp3"
-        logging.warning(file_name)
         return file_name
 
 
     def _extract_file(self, episode, recording, start_time, end_time):
         output_file = self._set_file_name(episode, recording)
         logging.debug("extracting episode to: {}".format(output_file))
-
-        try:
-            # create new recording entity
-            # recording.file = output_file
-            # recording.is_episode = 1
-            # recording.duration = Helpers.get_time_from_sec(end_time - start_time)
-
-            #format entity for db
-            new_recording=(
-                recording.channel_id,
-                recording.channel_name,
-                str(recording.date),
-                str(recording.start_time),
-                recording.duration,
-                # recording.file,
-                # recording.file_size,
-                # recording.is_episode,
-                output_file,
-                0, # file_size
-                1 # is_episode
-            )
-
-            # save entity in db
-            recording.id = self.db.create_recording(new_recording)
-            self.db.update_episode_recording(episode.id, recording.id)
-
-            Helpers.create_dir(output_file)
-            # extract episode from file
-            call = ['/usr/local/bin/ffmpeg','-y',
-                    '-i', recording.file ,
-                    '-ss', str(start_time) ,'-to', str(end_time),
-                    '-c' ,'copy',
-                     '-metadata', 'album={}'.format(episode.show_id),
-                     '-metadata', 'track={}'.format(recording.id),
-                     '-metadata', 'artist={}'.format(self.channel.id),
-                     output_file]
-            subprocess.call(call)
+        if os.path.isfile(output_file):
+            logging.debug("file already extracted")
             return output_file
+        else:
+            try:
+                #format entity for db
+                new_recording=(
+                    recording.channel_id,
+                    recording.channel_name,
+                    str(recording.date),
+                    str(recording.start_time),
+                    recording.duration,
+                    # recording.file,
+                    # recording.file_size,
+                    # recording.is_episode,
+                    output_file,
+                    0, # file_size
+                    1 # is_episode
+                )
 
-        except Exception as e:
-            logging.error(e)
-            raise e
+                # save entity in db
+                recording.id = self.db.create_recording(new_recording)
+                self.db.update_episode_recording(episode.id, recording.id)
+
+                Helpers.create_dir(output_file)
+
+                # extract episode from file
+                call = ['/usr/local/bin/ffmpeg','-y',
+                        '-i', recording.file ,
+                        '-ss', str(start_time) ,'-to', str(end_time),
+                        '-c' ,'copy',
+                         '-metadata', 'album={}'.format(episode.show_id),
+                         '-metadata', 'track={}'.format(recording.id),
+                         '-metadata', 'artist={}'.format(self.channel.id),
+                         output_file]
+                subprocess.call(call)
+                return output_file
+
+            except Exception as e:
+                logging.error(e)
+                raise e
 
     def _calculate_time_frame(self, episode, recording):
         """calcute time frames where to cut episode extract"""

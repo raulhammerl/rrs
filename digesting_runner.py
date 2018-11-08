@@ -1,10 +1,8 @@
 """
-
 needs:
 * DB
 * date
 * channel
-
 
 all_rows = self.db.find_episodes_by_date(self.date)
 
@@ -116,7 +114,7 @@ def digest_daily_blob(directory, date, channel_name):
           exit("ERROR: {}".format(e.message))
 
 
-    logging.info("Digesting process finished")
+    logging.info("Digesting process finished \n \n \n")
     sys.exit(0)
 
 

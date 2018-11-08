@@ -34,7 +34,7 @@ class Database:
         print("db opened", self.db_file)
 
     def execute(self, statement, values, fetch):
-        with  dbopen(self.db_file) as c:
+        with dbopen(self.db_file) as c:
             try:
                 if values is None:
                     c.execute(statement)
@@ -332,6 +332,19 @@ class Database:
             "http://epg4wdr.irt.de/radiodns/spi/3.1/dab/de0/1019/d392/0/"
             )
         channel_id = self.create_channel(channel)
+
+        channel = ("WDR3", "Klassik", "de",
+            "http://wdr-wdr3-live.icecast.wdr.de/wdr/wdr3/live/mp3/128/stream.mp3?ar-distributor=ffa1",
+            "http://epg4wdr.irt.de/radiodns/spi/3.1/dab/de0/10ec/d393/0"
+            )
+        channel_id = self.create_channel(channel)
+
+        channel = ("WDR4", "Schlager", "de",
+            "http://wdr-wdr4-live.icecast.wdr.de/wdr/wdr4/live/mp3/128/stream.mp3?ar-distributor=ffa1",
+            "http://epg4wdr.irt.de/radiodns/spi/3.1/dab/de0/1019/d392/0/"
+            )
+        channel_id = self.create_channel(channel)
+
 
     def init_episodes(self):
         sql_episodes = '''CREATE TABLE if not exists episodes(

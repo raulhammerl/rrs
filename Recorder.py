@@ -42,7 +42,7 @@ class Recorder:
                 else:
                     self._write_stream_to_file(recording)
 
-                print("finished audio capturing")
+                logging.info("finished audio capturing")
                 return recording
             except Exception as e:
                 logging.error("Could not complete capturing, because an exception occured: {}".format(e))
@@ -80,6 +80,7 @@ class Recorder:
                             file.write(stream.read(self.buff_size))
                             if  time.time() - start_timestamp > recording.duration:
                                 not_ready = False
+                            logging.info("recording {}".format(recording))
                         except KeyboardInterrupt:
                             logging.warning("Capturing interupted.")
                             not_ready = False
@@ -149,6 +150,7 @@ class Recorder:
                             if self.today != datetime.date.today():
                                 not_ready = False
                             file.write(stream.read(self.buff_size))
+                            logging.info("recording {}".format(recording.channel.name))
                         except KeyboardInterrupt:
                             logging.warning("Capturing interupted.")
                             not_ready = False

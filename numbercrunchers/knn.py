@@ -4,6 +4,7 @@ from sklearn.model_selection import cross_val_score
 from sklearn.metrics import accuracy_score, classification_report
 
 import matplotlib.pyplot as plt
+import numpy as np
 
 def _get_nearest_neigbours(X, y, n):
     # dist = DistanceMetric.get_metric('euclidean')
@@ -61,3 +62,38 @@ def _kkn_cross_validation(X, y):
     plt.xlabel('Number of Neighbors K')
     plt.ylabel('Misclassification Error')
     plt.show()
+
+def _knn_graph(X, y, n):
+    ## Instantiate the model with n neighbors.
+    # X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3) # 70% training and 30% tes
+
+    h = .02 # step size in the mesh
+    knn = KNeighborsClassifier()
+
+    # we create an instance of Neighbours Classifier and fit the data.
+    knn.fit(X, y)
+
+    # Plot the decision boundary. For that, we will asign a color to each
+    # point in the mesh [x_min, m_max]x[y_min, y_max].
+    x_min, x_max = X[:,0].min() - .5, X[:,0].max() + .5
+    y_min, y_max = X[:,1].min() - .5, X[:,1].max() + .5
+    xx, yy = np.meshgrid(np.arange(x_min, x_max, h), np.arange(y_min, y_max, h))
+    Z = knn.predict(np.c_[xx.ravel(), yy.ravel()])
+
+    # Put the result into a color plot
+    Z = Z.reshape(xx.shape)
+    pl.figure(1, figsize=(4, 3))
+    pl.set_cmap(pl.cm.Paired)
+    pl.pcolormesh(xx, yy, Z)
+
+    # Plot also the training points
+    pl.scatter(X[:,0], X[:,1],c=y)
+    pl.xlabel('Sepal length')
+    pl.ylabel('Sepal width')
+
+    pl.xlim(xx.min(), xx.max())
+    pl.ylim(yy.min(), yy.max())
+    pl.xticks(())
+    pl.yticks(())
+
+    pl.show()

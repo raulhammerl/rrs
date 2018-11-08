@@ -7,7 +7,7 @@ from sklearn.preprocessing import StandardScaler
 
 from sklearn.cluster import DBSCAN
 
-
+import agglomerative as agg
 import PCA
 import kmeans
 import knn
@@ -17,7 +17,7 @@ class NumberCruncher():
 
     def __init__(self, directory):
         self.directory = directory
-        self._load_df('27-10')
+        self._load_df('30-10-alt')
 
 
     def _load_df(self, name):
@@ -109,9 +109,9 @@ class NumberCruncher():
                 i= i+1
                 shows.append(show_id)
                 df_selected = df_selected.append(one_show)
-        print(shows)
+        print("shows with over {} instances: {}".format(n, shows))
         print(i)
-        print(df_selected['file_name'])
+        # print(df_selected['file_name'])
         return df_selected
 
     def slct_x_and_y(self):
@@ -152,8 +152,9 @@ def _load_df2(df1, directory, name):
 
 
 def main(self):
+
+    self.df = _load_df2(self.df, directory,'27-10')
     self._clean_df()
-    self.df = _load_df2(self.df, directory,'df')
     # y = self.df ['channel_id']
     # self.df.drop(['file_name',  'show_id', 'recording_id', 'channel_id'], axis=1, inplace=True)
 
@@ -166,23 +167,25 @@ def main(self):
     self._drop_columns_containing("max")
     self._drop_columns_containing("min")
     self._drop_columns_containing("median")
-    # print(self.df.shape)
+
     self.df = self.slct_shows_w_x_instances(self.df, 10, 10)
-    # print(self.df.shape)
-    # df = self.df.duplicated(subset=None, keep='first')
-    # print('dupes: ', df.sum())
-    #
-    # show1 = self.df[self.df['show_id'] == 82]
-    # show1 = show1.head(5)
+
+    dupes = self.df.duplicated(subset=None, keep='first')
+    print('dupes: ', dupes.sum())
+    # print(df)
+
+    # show1 = self.df[self.df['show_id'] == 6]
+    # show1 = show1.head(10)
     # # print(show1)
-    # show2 = self.df[self.df['show_id'] == 85]
-    # show2 = show2.head(5)
+    # show2 = self.df[self.df['show_id'] == 8]
+    # show2 = show2.head(10)
     # # print(show2)
+    # show3 = self.df[self.df['show_id'] == 20]
+    # show3 = show3.head(10)
+    #
     # self.df = pd.concat([show1, show2], axis=0)
     # print(self.df.shape)
 
-
-    self._write_to_excel([self.df])
     y = self.df ['show_id']
     self.df.drop(['file_name',  'show_id', 'recording_id', 'channel_id'], axis=1, inplace=True)
 
@@ -191,22 +194,33 @@ def main(self):
     self._run_scaler()
 
     X_kpca = PCA.run_kpca(self.df, 15)
-    print(self.contain_nan(X_kpca))
+
     # PCA.print_cumsum_trend(pca)
     # PCA.print_cumsum_trend_kpca(pca)
     # PCA.print_cumsum_trends_vs(kpca, pca)
-    X_tsne = tsne.run_tsne(self.df, 2, 35)
-    tsne.scatter_tsne(X_tsne, y)
 
-    kmeans.calculate_k_means(X_kpca, 2, y)
-    kmeans.calculate_k_means(X_tsne, 2, y)
-    # dbscan(kpca, pca_2d)
+    perplexity = 20
+    X_tsne = tsne.run_tsne(X_kpca, 2, perplexity)
+    # tsne.scatter_3d_tsne(X_tsne, y, 20)
+    # tsne.tsne_validation(X_kpca, y , 2)
+
+
+    # kmeans.calculate_k_means(X_kpca, 2, y)
+    # kmeans.calculate_k_means_3d(X_tsne, 2, y)
+    # dbscan.dbscan(X_tsne, pca_2d)
     # PCA.print_heatmap(self.df, 20, 400)
-    # knn._get_nearest_neigbours(X_kpca, y, 2)
-    # knn._get_nearest_neigbours(X_tsne, y, 2)
+    #
+    agg.run_aggloreative_clustering(X_tsne, 24, y)
+    # agg.run_aggloreative_clustering(X_kpca, 24, y)
 
-    knn._kkn_cross_validation(X_kpca,y)
-    knn._kkn_cross_validation(X_tsne,y)
+    # KNN
+    # knn._get_nearest_neigbours(X_kpca, y, 8)
+    # knn._get_nearest_neigbours(X_tsne, y, 11)
+
+    # knn._kkn_cross_validation(X_kpca,y)
+    # knn._kkn_cross_validation(X_tsne,y)
+
+    # knn._knn_graph(X_tsne, y, 5)
 
 if __name__ == "__main__":
     # directory = '/Users/Raul/Dropbox/Documents/Uni/Bachelorarbeit/AudioRecorder'
