@@ -1,18 +1,29 @@
 from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KNeighborsClassifier
+from sklearn.neighbors import NearestNeighbors
 from sklearn.model_selection import cross_val_score
 from sklearn.metrics import accuracy_score, classification_report
 
+from sklearn.metrics import roc_curve
+
+from matplotlib.colors import ListedColormap
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 
-def _get_nearest_neigbours(X, y, n):
-    # dist = DistanceMetric.get_metric('euclidean')
 
+from matplotlib import rcParams
+rcParams['font.family'] = ['sans-serif']
+rcParams['font.sans-serif'] = ['Verlag']
+
+
+
+
+def _get_nearest_neigbours(X, y, n_neighbors):
     ## Instantiate the model with n neighbors.
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3) # 70% training and 30% tes
 
-    knn = KNeighborsClassifier(n_neighbors=n, p=2)
+    knn = KNeighborsClassifier(n_neighbors, p=2)
     ## Fit the model on the training data.
     knn.fit(X_train, y_train)
     ## See how the model performs on the test data.
@@ -21,10 +32,13 @@ def _get_nearest_neigbours(X, y, n):
     #Predict the response for test dataset
     y_pred = knn.predict(X_test)
 
+    # get confusion matrix
+    pd.crosstab(y_test, y_pred, rownames=['True'], colnames=['Predicted'], margins=True)
+
     # Model Accuracy, how often is the classifier correct?
-    print("Accuracy:", accuracy_score(y_test, y_pred))
+    print("Accuracy with {} neighbors: {}".format(n_neighbors, accuracy_score(y_test, y_pred)))
+
     # Print out classification report and confusion matrix
-    print("\n\n")
     print(classification_report(y_test, y_pred))
     # plt.plot(classification_report(y_test, y_pred))
     plt.show()
@@ -63,37 +77,93 @@ def _kkn_cross_validation(X, y):
     plt.ylabel('Misclassification Error')
     plt.show()
 
-def _knn_graph(X, y, n):
+    return optimal_k
+
+
+
+def _knn_graph(X, y, n_neighbors):
     ## Instantiate the model with n neighbors.
     # X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3) # 70% training and 30% tes
 
-    h = .02 # step size in the mesh
-    knn = KNeighborsClassifier()
+    h =  1#.02 # step size in the mesh
 
-    # we create an instance of Neighbours Classifier and fit the data.
-    knn.fit(X, y)
 
-    # Plot the decision boundary. For that, we will asign a color to each
-    # point in the mesh [x_min, m_max]x[y_min, y_max].
-    x_min, x_max = X[:,0].min() - .5, X[:,0].max() + .5
-    y_min, y_max = X[:,1].min() - .5, X[:,1].max() + .5
-    xx, yy = np.meshgrid(np.arange(x_min, x_max, h), np.arange(y_min, y_max, h))
-    Z = knn.predict(np.c_[xx.ravel(), yy.ravel()])
+    # Create color maps
+    cmap_light = ListedColormap(['#FFAAAA', '#AAFFAA', '#AAAAFF'])
+    cmap_bold = ListedColormap(['#FF0000', '#00FF00', '#0000FF'])
 
-    # Put the result into a color plot
-    Z = Z.reshape(xx.shape)
-    pl.figure(1, figsize=(4, 3))
-    pl.set_cmap(pl.cm.Paired)
-    pl.pcolormesh(xx, yy, Z)
+    for weights in ['uniform', 'distance']:
+        # we create an instance of Neighbours Classifier and fit the data.
+        clf = KNeighborsClassifier(n_neighbors, weights=weights)
+        clf.fit(X, y)
 
-    # Plot also the training points
-    pl.scatter(X[:,0], X[:,1],c=y)
-    pl.xlabel('Sepal length')
-    pl.ylabel('Sepal width')
+        # Plot the decision boundary. For that, we will assign a color to each
+        # point in the mesh [x_min, x_max]x[y_min, y_max].
+        x_min, x_max = X[:, 0].min() - 1, X[:, 0].max() + 1
+        y_min, y_max = X[:, 1].min() - 1, X[:, 1].max() + 1
+        xx, yy = np.meshgrid(np.arange(x_min, x_max, h),
+                             np.arange(y_min, y_max, h))
+        Z = clf.predict(np.c_[xx.ravel(), yy.ravel()])
 
-    pl.xlim(xx.min(), xx.max())
-    pl.ylim(yy.min(), yy.max())
-    pl.xticks(())
-    pl.yticks(())
+        # Put the result into a color plot
+        Z = Z.reshape(xx.shape)
+        plt.figure()
+        plt.pcolormesh(xx, yy, Z, cmap=cmap_light)
 
-    pl.show()
+        # Plot also the training points
+        plt.scatter(X[:, 0], X[:, 1], c=y, cmap=cmap_bold,
+                    edgecolor='k', s=20)
+        plt.xlim(xx.min(), xx.max())
+        plt.ylim(yy.min(), yy.max())
+        plt.title("3-Class classification (k = %i, weights = '%s')"
+                  % (n_neighbors, weights))
+
+    plt.show()
+
+
+
+def draw_roc(X, y, n_neighbors):
+    ## Instantiate the model with n neighbors.
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3) # 70% training and 30% tes
+
+    knn = KNeighborsClassifier(n_neighbors, p=2)
+    ## Fit the model on the training data.
+    knn.fit(X_train, y_train)
+
+    # print(y)
+
+    # calculate roc curve
+    y_pred_proba = knn.predict_proba(X_test)[:,1]
+    fpr, tpr, thresholds = roc_curve(y, y_pred_proba)
+
+    plt.plot([0,1],[0,1],'k--')
+    plt.plot(fpr,tpr, label='Knn')
+    plt.xlabel('fpr')
+    plt.ylabel('tpr')
+    plt.title('Knn(n_neighbors=7) ROC curve')
+    plt.show()
+
+
+
+def get_neigh(X, needle, n):
+    # get filepath from recording_id and DB
+    # get show_name from id and DB
+    # print distances
+
+    neighs = []
+    neigh = NearestNeighbors(n_neighbors=n+1)
+    neigh.fit(X)
+    NearestNeighbors(algorithm='auto', leaf_size=30)
+    distances, indices = neigh.kneighbors([X[needle]])
+    print("\n\n", distances)
+    for x in indices:
+        for i in x:
+            # if i == needle:
+            #     continue
+            # else:
+            #     neighs.extend([int(i)])
+            neighs.extend([int(i)])
+    X_neighs = X.iloc[nearestn, 0:4]
+    # X_neighs.append(distances, axis=1)
+    # print(X_neighs)
+    return neighs

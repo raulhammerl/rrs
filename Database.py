@@ -345,6 +345,13 @@ class Database:
             )
         channel_id = self.create_channel(channel)
 
+        channel = ("Antenne", "Schlager", "de",
+            "http://mp3channels.webradio.antenne.de:80/antenne",
+            "https://www.antenne.de/radiodns/spi/3.1/dab/de0/10a5/d318/0/"
+            )
+        channel_id = self.create_channel(channel)
+
+
 
     def init_episodes(self):
         sql_episodes = '''CREATE TABLE if not exists episodes(

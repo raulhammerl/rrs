@@ -42,9 +42,7 @@ def main(argv=None):
     [3] date
     like: "./digsting_runner.py /User/Data 2018-02-10 Br_Klassik"
     '''
-
-    #too little arguments
-
+    # check number of arguments 
     if len(argv) < 3 or len(argv) > 4:
         print(helpText)
         print(len(argv))

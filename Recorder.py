@@ -150,7 +150,7 @@ class Recorder:
                             if self.today != datetime.date.today():
                                 not_ready = False
                             file.write(stream.read(self.buff_size))
-                            logging.info("recording {}".format(recording.channel.name))
+                            logging.info("recording {}".format(recording))
                         except KeyboardInterrupt:
                             logging.warning("Capturing interupted.")
                             not_ready = False
