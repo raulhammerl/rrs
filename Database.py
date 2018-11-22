@@ -3,6 +3,7 @@ from sqlite3 import Error
 import os.path
 import os
 import logging
+import csv
 
 from Entities import Episode, Channel, Recording
 import Helpers
@@ -30,6 +31,7 @@ class Database:
 
     def __init__(self, directory):
         self.db_file = os.path.join(directory, 'Data', 'Database', 'db.sqlite')
+        self.csv_file = "/Users/Raul/Dropbox/Documents/Uni/Bachelorarbeit/RadioDNS/DabandStreams.csv"
         Helpers.create_dir(self.db_file)
         print("db opened", self.db_file)
 
@@ -297,59 +299,60 @@ class Database:
         self.create_table(sql_episodes)
         self.create_table(sql_recordings)
 
+        self.read_channel_csv()
         #initial channels
-        channel = ("Br_Klassik", "Klassik", "de",
-         "http://br-brklassik-live.cast.addradio.de/br/brklassik/live/mp3/128/stream.mp3",
-         "http://epg4br.irt.de/radiodns/spi/3.1/dab/de0/10a5/d314/0/")
-        channel_id = self.create_channel(channel)
-
-
-        channel = ("Bayern_1", "", "de",
-            "http://br-br1-mainfranken.cast.addradio.de/br/br1/mainfranken/mp3/128/stream.mp3",
-            "http://epg4br.irt.de/radiodns/spi/3.1/dab/de0/1131/d711/0/")
-        channel_id = self.create_channel(channel)
-
-
-        channel = ("Bayern_3", "", "de",
-            "http://br-br3-live.cast.addradio.de/br/br3/live/mp3/128/stream.mp3",
-            "http://epg4br.irt.de/radiodns/spi/3.1/dab/de0/10a5/d313/0/")
-        channel_id = self.create_channel(channel)
-
-
-        channel = ("B5_Aktuell", "", "de",
-            "http://br-b5aktuell-live.cast.addradio.de/br/b5aktuell/live/mp3/128/stream.mp3",
-            "http://epg4br.irt.de/radiodns/spi/3.1/dab/de0/10a5/d315/0/")
-        channel_id = self.create_channel(channel)
-
-
-        channel = ("Puls", "", "de",
-            "http://br-puls-live.cast.addradio.de/br/puls/live/mp3/128/stream.mp3",
-            "http://epg4br.irt.de/radiodns/spi/3.1/dab/de0/10a5/d317/0/")
-        channel_id = self.create_channel(channel)
-
-        channel = ("WDR2", "", "de",
-            "http://wdr-wdr2-rheinland.icecast.wdr.de/wdr/wdr2/rheinland/mp3/128/stream.mp3",
-            "http://epg4wdr.irt.de/radiodns/spi/3.1/dab/de0/1019/d392/0/"
-            )
-        channel_id = self.create_channel(channel)
-
-        channel = ("WDR3", "Klassik", "de",
-            "http://wdr-wdr3-live.icecast.wdr.de/wdr/wdr3/live/mp3/128/stream.mp3?ar-distributor=ffa1",
-            "http://epg4wdr.irt.de/radiodns/spi/3.1/dab/de0/10ec/d393/0"
-            )
-        channel_id = self.create_channel(channel)
-
-        channel = ("WDR4", "Schlager", "de",
-            "http://wdr-wdr4-live.icecast.wdr.de/wdr/wdr4/live/mp3/128/stream.mp3?ar-distributor=ffa1",
-            "http://epg4wdr.irt.de/radiodns/spi/3.1/dab/de0/1019/d392/0/"
-            )
-        channel_id = self.create_channel(channel)
-
-        channel = ("Antenne", "Schlager", "de",
-            "http://mp3channels.webradio.antenne.de:80/antenne",
-            "https://www.antenne.de/radiodns/spi/3.1/dab/de0/10a5/d318/0/"
-            )
-        channel_id = self.create_channel(channel)
+        # channel = ("Br_Klassik", "Klassik", "de",
+        #  "http://br-brklassik-live.cast.addradio.de/br/brklassik/live/mp3/128/stream.mp3",
+        #  "http://epg4br.irt.de/radiodns/spi/3.1/dab/de0/10a5/d314/0/")
+        # channel_id = self.create_channel(channel)
+        #
+        #
+        # channel = ("Bayern_1", "", "de",
+        #     "http://br-br1-mainfranken.cast.addradio.de/br/br1/mainfranken/mp3/128/stream.mp3",
+        #     "http://epg4br.irt.de/radiodns/spi/3.1/dab/de0/1131/d711/0/")
+        # channel_id = self.create_channel(channel)
+        #
+        #
+        # channel = ("Bayern_3", "", "de",
+        #     "http://br-br3-live.cast.addradio.de/br/br3/live/mp3/128/stream.mp3",
+        #     "http://epg4br.irt.de/radiodns/spi/3.1/dab/de0/10a5/d313/0/")
+        # channel_id = self.create_channel(channel)
+        #
+        #
+        # channel = ("B5_Aktuell", "", "de",
+        #     "http://br-b5aktuell-live.cast.addradio.de/br/b5aktuell/live/mp3/128/stream.mp3",
+        #     "http://epg4br.irt.de/radiodns/spi/3.1/dab/de0/10a5/d315/0/")
+        # channel_id = self.create_channel(channel)
+        #
+        #
+        # channel = ("Puls", "", "de",
+        #     "http://br-puls-live.cast.addradio.de/br/puls/live/mp3/128/stream.mp3",
+        #     "http://epg4br.irt.de/radiodns/spi/3.1/dab/de0/10a5/d317/0/")
+        # channel_id = self.create_channel(channel)
+        #
+        # channel = ("WDR2", "", "de",
+        #     "http://wdr-wdr2-rheinland.icecast.wdr.de/wdr/wdr2/rheinland/mp3/128/stream.mp3",
+        #     "http://epg4wdr.irt.de/radiodns/spi/3.1/dab/de0/1019/d392/0/"
+        #     )
+        # channel_id = self.create_channel(channel)
+        #
+        # channel = ("WDR3", "Klassik", "de",
+        #     "http://wdr-wdr3-live.icecast.wdr.de/wdr/wdr3/live/mp3/128/stream.mp3?ar-distributor=ffa1",
+        #     "http://epg4wdr.irt.de/radiodns/spi/3.1/dab/de0/10ec/d393/0"
+        #     )
+        # channel_id = self.create_channel(channel)
+        #
+        # channel = ("WDR4", "Schlager", "de",
+        #     "http://wdr-wdr4-live.icecast.wdr.de/wdr/wdr4/live/mp3/128/stream.mp3?ar-distributor=ffa1",
+        #     "http://epg4wdr.irt.de/radiodns/spi/3.1/dab/de0/1019/d392/0/"
+        #     )
+        # channel_id = self.create_channel(channel)
+        #
+        # channel = ("Antenne", "Schlager", "de",
+        #     "http://mp3channels.webradio.antenne.de:80/antenne",
+        #     "https://www.antenne.de/radiodns/spi/3.1/dab/de0/10a5/d318/0/"
+        #     )
+        # channel_id = self.create_channel(channel)
 
 
 
@@ -366,6 +369,34 @@ class Database:
         );'''
 
         self.create_table(sql_episodes)
+
+
+    def read_channel_csv(self):
+        with open(self.csv_file, mode='r', encoding='utf8') as csv_file:
+            csv_reader = csv.reader(csv_file, delimiter=';')
+            line_count = 0
+            for row in csv_reader:
+                if line_count == 0:
+                    print(f'Column names are {", ".join(row)}')
+                    line_count += 1
+                else:
+                    name = row[0]
+                    dab = row[1].replace(".","/").replace(":","/")
+                    stream_url = row[2]
+                    channel_url = row[3]
+                    radiodns_url = channel_url + dab
+                    channel = (
+                        name,
+                        "",
+                        "de",
+                        stream_url,
+                        radiodns_url
+                    )
+                    self.create_channel(channel)
+                    line_count += 1
+            print(f'Processed {line_count} lines.')
+
+
 
     def printDB(self):
         select_channels_sql = "SELECT * FROM channels;"

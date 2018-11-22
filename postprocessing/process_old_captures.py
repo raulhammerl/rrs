@@ -1,7 +1,7 @@
 from datetime import timedelta, date
 from subprocess import call
 
-channels = ['WDR2', 'Bayern_1', 'Bayern_3', 'B5_Aktuell', 'Puls', 'Br_Klassik']
+channels = ['WDR2', 'Bayern_1', 'Bayern_3', 'B5_Aktuell', 'Puls', 'Br_Klassik', 'WDR4']
 
 def process_old_captures(d1, d2):
     delta = d2 - d1
