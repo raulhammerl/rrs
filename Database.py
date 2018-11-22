@@ -380,11 +380,12 @@ class Database:
                     print(f'Column names are {", ".join(row)}')
                     line_count += 1
                 else:
-                    name = row[0]
+                    name = row[0].replace(" ","")
                     dab = row[1].replace(".","/").replace(":","/")
-                    stream_url = row[2]
-                    channel_url = row[3]
+                    stream_url = row[2].replace(" ","")
+                    channel_url = row[3].replace(" ","")
                     radiodns_url = channel_url + dab
+                    array.append(name)
                     channel = (
                         name,
                         "",
