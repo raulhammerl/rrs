@@ -175,7 +175,6 @@ def main(self):
     # self.plot_real_clusters(X_tsne, show_target, label='show', title=None)
     # self.run_clusterings_on(self, X, algorithm, args, kwds, select, target)
 
-
     # KNN
     # knn._get_nearest_neigbours(X_kpca, y, 4)
     # knn._get_nearest_neigbours(X_tsne2d, y, 4)
@@ -186,12 +185,10 @@ def main(self):
     # knn.draw_roc(X_tsne2d, y, 9)
 
     # show = 620
-    #
     # nearestn = knn.get_neigh(X_kpca, show, 10)
     # print("knn kpca")
     # print(type(nearestn))
     # print(odf.iloc[nearestn, 0:4])
-
     # print(X_tsne)
 
 
