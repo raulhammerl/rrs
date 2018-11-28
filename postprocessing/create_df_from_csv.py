@@ -13,8 +13,8 @@ def create_df_from_csv(directory):
                     else:
                         row = pd.read_csv(file)
                         df = df.append(row, ignore_index=True)
-                except pd.EmptyDataError:
-                    continue 
+                except pd.errors.EmptyDataError:
+                    continue
 
     return df
 
