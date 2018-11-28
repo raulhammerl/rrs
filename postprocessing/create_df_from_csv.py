@@ -6,12 +6,15 @@ def create_df_from_csv(directory):
     for root, dirs, files in os.walk(directory):
         for basename in files:
             if(".csv" in basename):
-                file = os.path.join(root, basename)
-                if df is None:
-                    df = pd.read_csv(file)
-                else:
-                    row = pd.read_csv(file)
-                    df = df.append(row, ignore_index=True)
+                try:
+                    file = os.path.join(root, basename)
+                    if df is None:
+                        df = pd.read_csv(file)
+                    else:
+                        row = pd.read_csv(file)
+                        df = df.append(row, ignore_index=True)
+                except pd.EmptyDataError:
+                    continue 
 
     return df
 
