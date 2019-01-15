@@ -30,7 +30,7 @@ class NumberCruncher():
 
     def __init__(self, directory):
         self.directory = directory
-        self._load_df('09-11')
+        self._load_df('10-01')
 
 
     def _load_df(self, name):
@@ -39,7 +39,7 @@ class NumberCruncher():
             self.df = pd.read_pickle(f)
 
 
-    def _run_normalizer(self):
+    def _run_normalizer(self, X):
         scaler = Normalizer().fit(X)
         normalizedX = scaler.transform(X)
         return normalizedX
@@ -57,7 +57,6 @@ class NumberCruncher():
     def _write_to_excel(self, pages):
         output = os.path.join(self.directory, 'Data', 'Database', 'output.xlsx')
         writer = pd.ExcelWriter(output)
-
         i = 0
         for page in pages:
             page.to_excel(writer,('Sheet'+ str(i)))
@@ -128,22 +127,43 @@ def _load_df2(df1, directory, name):
 
 
 def main(self):
-    self.df = _load_df2(self.df, directory,'14-11')
+    # self.df = _load_df2(self.df, directory,'14-11')
     self._clean_df()
-
-
-    # self.df = slt.select_certain_shows('channel_id', [4])
+    d,h,m,s = slt.get_total_recording_time(self.df)
+    print("total recorder time: {:.2f}d, {:.0f}h, {:.0f}m, {:.0f}s".format(d,h,m,s))
+    select = [
+        # 41235,
+        # 41236,
+        # 41237,
+        41238,
+        # 41239,
+        41240,
+        41241,
+        41242,
+        # 41243,
+        41244,
+        41245,
+        41264,
+        41265,
+        # 41266,
+        41267,
+        41268,
+        41269,
+        41270,
+        41271]
+    
+    # self.df = slt.select_certain_shows(self.df, 'channel_id', select)
     self.df = slt.shows_with_min_time(self.df, 7)
-    self.df = slt.drop_unneeded_columns_and_rows(self.df)
+    self.df = slt.drop_unneeded_columns_and_rows(self.df, nan='drop')
     dupes = slt.check_for_duplicates(self.df)
-    # self.df = slt.drop_shows_from_channel(self.df, 4)
-    # self._drop_vl()
+    self.df = slt.drop_shows_from_channel(self.df, 4)
+    # self.df = slt.drop_vl(self.df)
     self.df, no = slt.select_shows_w_x_instances(self.df, 10, keep='all')
-
 
 
     channel_target = self.df ['channel_id']
     show_target = self.df ['show_id']
+    print(channel_target.shape)
     target = show_target
     select = 'channel_id'
     # no = target.unique().size
@@ -154,25 +174,24 @@ def main(self):
     self._run_scaler()
 
     ## PCA
-    X_kpca = PCA.run_kpca(self.df, 2)
-    # vif_dict = PCA.select_most_importan_features(self.df, 15, 100)
+    X_kpca = PCA.run_kpca(self.df, 15)
+    # X_kpca2d = PCA.run_kpca(self.df, 2)
+    # PCA.get_vip_feature_count(self.df, 15, 300)
+    # PCA.print_cumsum_trend(self.df, 100, ker='cosine')
+    # PCA.print_cumsum_trend(self.df, 100)
 
     ## TSNE
     perplexity = 110
-    # X_tsne = tsne.run_tsne(X_kpca, 2, perplexity)
-    # tsne.scatter_tsne(X_tsne, target, perplexity)
-    # tsne.tsne_perplexity_test(X_kpca, y , 2)
+    X_tsne = tsne.run_tsne(X_kpca, 2, perplexity)
+    # X_tsne_300 = tsne.run_tsne(X_kpca, 2, 300)
+    # plt.plot_real_clusters(X_tsne_300, channel_target)
+    # tsne.tsne_perplexity_test(X_kpca, channel_target , 2)
 
-    # data = X_tsne
+    data = X_tsne
 
-    # self.plot_clusters(X_kpca, KMeans, (), {'n_clusters':6})
-    # self.plot_clusters(data, DBSCAN, (), {'eps':3.225})
-    # self.plot_clusters(data, AffinityPropagation, (), {'preference':-5.0, 'damping':0.95})
-    # self.plot_clusters(data, SpectralClustering, (), {'n_clusters': no})
-    # self.plot_clusters(data, MeanShift, (0.5,), {'cluster_all':False})
-    # self.plot_clusters(X_kpca, hdbscan.HDBSCAN, (), {'min_cluster_size':6})
-
-    # self.plot_real_clusters(X_tsne, show_target, label='show', title=None)
+   
+    plt.plot_genre_clusters(data, channel_target)
+    # plt.plot_real_clusters(X_kpca, show_target, label='show', title=None)
     # self.run_clusterings_on(self, X, algorithm, args, kwds, select, target)
 
     # KNN
@@ -187,37 +206,22 @@ def main(self):
     # show = 620
     # nearestn = knn.get_neigh(X_kpca, show, 10)
     # print("knn kpca")
-    # print(type(nearestn))
     # print(odf.iloc[nearestn, 0:4])
-    # print(X_tsne)
-
-
 
 
     ## Archetype
-    n_arch = 6
-
-    min_max_scaler = MinMaxScaler()
-    X_train_minmax = min_max_scaler.fit_transform(X_kpca)
-    print(X_train_minmax)
-    X_train_minmax = np.rot90(X_train_minmax)
+    n_arch = 4
+    X_train_minmax = np.rot90(data, -1)
     XC, S, C, SSE, varexpl = pcha.PCHA(X_train_minmax, n_arch)
-    print(XC)
-    print(C)
-    print(X_train_minmax.shape)
-    print(XC.shape)
-    # np.concatenate((X_train_minmax, XC))
-    X_train_minmax = np.append(X_train_minmax, XC, axis=1)
-    print(X_train_minmax.shape)
-    X_train_minmax = np.rot90(X_train_minmax, -1)
-    print(X_train_minmax)
-    # X_kpca = PCA.run_kpca(X_train_minmax, 2)
-    X_kpca_df = pd.DataFrame(X_train_minmax)
-    archetype_vectors = X_kpca_df.tail(n_arch)
-    X_kpca_df[:-n_arch]
-    plt.plot_archetypes(X_kpca_df, channel_target, archetype_vectors)
-    # self.plot_real_clusters(X_kpca, channel_target, label='channel', title=None)
-    # a.screePlot()
+    X_train_minmax = np.rot90(X_train_minmax, 1)
+    XC = np.array(XC)
+    plt.plot_archetypes(X_train_minmax, channel_target, XC, label='channel', title="Archetypes with tSNE")
+    # plt.plot_archetypes(X_train_minmax, channel_target, XC, label='channel', title="Archetypes with tSNE")
+    # plt.plot_real_clusters(X_tsne, channel_target, label='channel', title=None)
+
+    a              = arch.Archetypes(self.df)
+    archetypesList = a.findAllArchetypes()
+    # a.screePlot(title="Scree Test")
 
 
 if __name__ == "__main__":

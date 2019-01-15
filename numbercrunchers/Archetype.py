@@ -5,13 +5,15 @@ import numpy as np
 from scipy import optimize as spopt
 
 cvxsol.options['show_progress'] = False
-
+yellow ='#FEDE3D'
 
 """
 n archetypal analysis, the rows of H are archetypes, and the rows of W are convex
 combinations that (approximately) represent the data points. The archetypes are forced
 to be convex combinations of the data points:
 """
+
+
 
 class Archetypes():
 
@@ -49,12 +51,15 @@ class Archetypes():
 
         return self.archetypesList
 
-    def screePlot(self):
-
+    def screePlot(self, title=None):
         ll = [ archetype[1] for archetype in self.archetypesList ]
-
         screeFig = plt.figure()
-        plt.plot(ll)
+        plt.plot(ll, color = yellow)
+        if title is not None:
+            plt.title('{}'.format(title), fontsize=22)
+        plt.xlabel('Archetypen')
+        plt.ylabel('RSS')
+        plt.grid(b=None, which='major', axis='both', linestyle='dotted')
         plt.show()
 
         return screeFig

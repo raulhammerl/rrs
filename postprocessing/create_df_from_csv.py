@@ -8,12 +8,14 @@ def create_df_from_csv(directory):
             if(".csv" in basename):
                 try:
                     file = os.path.join(root, basename)
+                    print(file)
                     if df is None:
                         df = pd.read_csv(file)
                     else:
                         row = pd.read_csv(file)
                         df = df.append(row, ignore_index=True)
                 except pd.errors.EmptyDataError:
+                    print("file empty")
                     continue
 
     return df

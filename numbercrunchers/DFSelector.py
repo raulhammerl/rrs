@@ -3,11 +3,15 @@ import pandas as pd
 
 def drop_columns_containing(df, cues):
     # select columns to drop from dataframe
+    shape_before = df.shape
     to_drop = []
     for cue in cues:
         drops = [c for c in df.columns if(cue in c)]
         to_drop.extend(drops)
     df.drop(to_drop, axis=1, inplace=True)
+    rows = shape_before[0] - df.shape[0]
+    columns = shape_before[1] - df.shape[1]
+    print("with cues {} dropped {} rows and {} columns ".format(cues, rows,columns))
     return df
 
 def select_columns_containing(df, cue):
@@ -78,7 +82,7 @@ def drop_vl(df):
     return drop_columns_containing(df, to_drop)
 
 
-def drop_unneeded_columns_and_rows(df):
+def drop_unneeded_columns_and_rows(df, nan='drop'):
     shape_before = df.shape
     to_drop=["beats_position",
              "mfcc",
@@ -93,8 +97,16 @@ def drop_unneeded_columns_and_rows(df):
     drop_columns_containing(df, to_drop)
     # drop duplicates
     drop_duplicates(df)
-    # drop columns without values
-    df = df.dropna(axis=1, how='any')
+
+    # edit columns with empty values
+    if nan == 'drop':
+        df = df.dropna(axis=1, how='any')
+    elif nan == 'zero':
+        df = df.fillna(0)
+    elif nan == 'impute':
+        df = df.fillna(df.mean())
+
+    df = df.fillna(0)
     rows = shape_before[0] - df.shape[0]
     columns = shape_before[1] - df.shape[1]
     print("dropped {} rows and {} columns ".format(rows,columns))
@@ -104,3 +116,10 @@ def shows_with_min_time(df, min):
     length = 60*min #make minutes to seconds
     df = df[df['length'] >= length]
     return df
+
+def get_total_recording_time(df):
+    s = df['length'].sum()
+    m = s / 60
+    h = m / 60
+    d = h / 24
+    return d,h,m,s

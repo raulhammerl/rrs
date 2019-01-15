@@ -132,12 +132,12 @@ def read_channel_csv():
                     radiodns_url
                 )
                 radiodns_url = radiodns_url + "20181122_PI.xml"
-                request = requests.get(stream_url, stream=True)
+                request = requests.get(radiodns_url) #stream=True
                 if request.status_code == 200:
-                    print(name,': Web site exists', stream_url)
+                    print(name,': Web site exists', radiodns_url)
                     # pass
                 else:
-                    print(name,': Web site does not exist', stream_url)
+                    print(name,': Web site does not exist', radiodns_url)
                 # Database.create_channel(channel)
                 line_count += 1
         print(f'Processed {line_count} lines.')
