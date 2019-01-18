@@ -71,7 +71,10 @@ class put_recordings_in_db():
 
     def _get_channel(self, basename):
         for x in channel_names:
-            if x in basename:
+            print(x)
+            print(channel_names)
+            print("s", basename)
+            if x.lower() in basename:
                 channel = x 
                 return channel
 
