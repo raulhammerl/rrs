@@ -73,7 +73,7 @@ class put_recordings_in_db():
         for x in channel_names:
             if x in basename:
                 channel = x 
-
+                return channel
 
         # if('Bayern_1' in basename):
         #     channel = 'Bayern_1'
@@ -87,7 +87,7 @@ class put_recordings_in_db():
         #     channel = 'Br_Klassik'
         # elif('Puls' in basename):
         #     channel = 'Puls'
-        return channel
+        return
 
 
 def main():
