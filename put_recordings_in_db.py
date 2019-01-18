@@ -13,7 +13,7 @@ import Database
 * channel
 """
 
-channel_names=['BR Klassik','Bayern 1','Bayern 3','B5 Aktuell','Puls','WDR2','WDR3',
+channel_names=['Br_Klassik','Bayern_1','Bayern_3','B5_Aktuell','Puls','WDR2','WDR3',
 'WDR4',"BR_Heimat","Bayern+","Bayern_2_Sued","HR1","HR2","HR3","HR4","You_FM","MDR_Klassik",
 "MDR_Jump","MDR_Sputnik","NDR_90.3","NDR2","NDR_Spez","NDR_Blue","NDR1","B888","Fritz", "Radio_Eins"]
 
