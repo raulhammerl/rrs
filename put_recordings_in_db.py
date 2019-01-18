@@ -74,7 +74,7 @@ class put_recordings_in_db():
             print(x)
             print(channel_names)
             print("s", basename)
-            if x.lower() in basename:
+            if x in basename:
                 channel = x 
                 return channel
 
