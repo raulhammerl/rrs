@@ -1,3 +1,4 @@
+import pickle as pkl
 import pandas as pd
 import numpy as np
 import os
@@ -25,12 +26,11 @@ import Plotter as plt
 
 
 
-
 class NumberCruncher():
 
     def __init__(self, directory):
         self.directory = directory
-        self._load_df('10-01')
+        self._load_df('17-01')
 
 
     def _load_df(self, name):
@@ -38,11 +38,19 @@ class NumberCruncher():
         with open(df_file, "rb") as f:
             self.df = pd.read_pickle(f)
 
-
     def _run_normalizer(self, X):
         scaler = Normalizer().fit(X)
         normalizedX = scaler.transform(X)
         return normalizedX
+    
+    def _save_arr(self, arr, name):
+        with open(name,'wb') as f:
+            pkl.dump(arr, f)
+
+    def _load_arr(self, name):
+        with open(name,'rb') as f:
+            arr = pkl.load(f)
+        return arr
 
     def _run_scaler(self):
         # Get column names first
@@ -107,17 +115,6 @@ class NumberCruncher():
         return (X,y)
 
 
-    def run_clusterings_on(self, X, algorithm, args, kwds, select, target):
-        for i in X[select].unique():
-            data = self.df[self.df[select] == i]
-            target = data[target]
-            data.drop(['file_name',  'show_id', 'recording_id', 'channel_id', 'length'], axis=1, inplace=True)
-            X_kpca = PCA.run_kpca(data, 15)
-            X_tsne = tsne.run_tsne(X_kpca, 2, 110)
-            self.plot_clusters(X_tsne, algorithm, args, kwds)
-            self.plot_real_clusters(X_tsne, target, label='show', title=channel_labels[i])
-
-
 def _load_df2(df1, directory, name):
     df2_file = os.path.join(directory, 'Data', 'Database', name +'.pkl')
     df2 = pd.read_pickle(df2_file)
@@ -130,41 +127,45 @@ def main(self):
     # self.df = _load_df2(self.df, directory,'14-11')
     self._clean_df()
     d,h,m,s = slt.get_total_recording_time(self.df)
-    print("total recorder time: {:.2f}d, {:.0f}h, {:.0f}m, {:.0f}s".format(d,h,m,s))
+    print("total recorded time: {:.2f}d, {:.0f}h, {:.0f}m, {:.0f}s".format(d,h,m,s))
     select = [
-        # 41235,
+        2,
+        41235,
         # 41236,
         # 41237,
-        41238,
-        # 41239,
-        41240,
-        41241,
-        41242,
-        # 41243,
-        41244,
-        41245,
-        41264,
-        41265,
-        # 41266,
-        41267,
-        41268,
-        41269,
-        41270,
-        41271]
+        # 41238,
+        # # 41239,
+        # 41240,
+        # 41241,
+        # 41242,
+        # # 41243,
+        # 41244,
+        # 41245,
+        # 41264,
+        # 41265,
+        # # 41266,
+        # 41267,
+        # 41268,
+        # 41269,
+        # 41270,
+        # 41271
+        ]
     
     # self.df = slt.select_certain_shows(self.df, 'channel_id', select)
-    self.df = slt.shows_with_min_time(self.df, 7)
+    self.df = slt.shows_with_min_time(self.df, 30)
     self.df = slt.drop_unneeded_columns_and_rows(self.df, nan='drop')
     dupes = slt.check_for_duplicates(self.df)
     self.df = slt.drop_shows_from_channel(self.df, 4)
     # self.df = slt.drop_vl(self.df)
-    self.df, no = slt.select_shows_w_x_instances(self.df, 10, keep='all')
+    self.df, no = slt.select_shows_w_x_instances(self.df, 5, keep='all')
 
 
     channel_target = self.df ['channel_id']
     show_target = self.df ['show_id']
-    print(channel_target.shape)
-    target = show_target
+    name_target = self.df ['file_name']
+    recording_target = self.df ['recording_id']
+    target = channel_target
+    print(target.shape)
     select = 'channel_id'
     # no = target.unique().size
 
@@ -174,10 +175,10 @@ def main(self):
     self._run_scaler()
 
     ## PCA
-    X_kpca = PCA.run_kpca(self.df, 15)
+    X_kpca = PCA.run_kpca(self.df, 4)
     # X_kpca2d = PCA.run_kpca(self.df, 2)
     # PCA.get_vip_feature_count(self.df, 15, 300)
-    # PCA.print_cumsum_trend(self.df, 100, ker='cosine')
+    # PCA.print_cumsum_trend(self.df, 100, ker='linear')
     # PCA.print_cumsum_trend(self.df, 100)
 
     ## TSNE
@@ -186,13 +187,18 @@ def main(self):
     # X_tsne_300 = tsne.run_tsne(X_kpca, 2, 300)
     # plt.plot_real_clusters(X_tsne_300, channel_target)
     # tsne.tsne_perplexity_test(X_kpca, channel_target , 2)
+    name = directory + "tSNE/" +"tSNE_>30min_>5x" + ".pkl"
 
+    # self._save_arr(X_tsne, name)
+    # data = self._load_arr(name)
     data = X_tsne
 
-   
-    plt.plot_genre_clusters(data, channel_target)
+    # plt.plot_genre_clusters(data, channel_target)
+    # plt.plot_genre(data, channel_target, 1)
+    # plt.plot_each_genre(data, channel_target)
     # plt.plot_real_clusters(X_kpca, show_target, label='show', title=None)
-    # self.run_clusterings_on(self, X, algorithm, args, kwds, select, target)
+    # plt.plot_clusters(data, hdbscan.HDBSCAN, (), {'min_cluster_size':10})
+    plt.plot_with_annotation(data, channel_target, show_target)
 
     # KNN
     # knn._get_nearest_neigbours(X_kpca, y, 4)
@@ -216,7 +222,6 @@ def main(self):
     X_train_minmax = np.rot90(X_train_minmax, 1)
     XC = np.array(XC)
     plt.plot_archetypes(X_train_minmax, channel_target, XC, label='channel', title="Archetypes with tSNE")
-    # plt.plot_archetypes(X_train_minmax, channel_target, XC, label='channel', title="Archetypes with tSNE")
     # plt.plot_real_clusters(X_tsne, channel_target, label='channel', title=None)
 
     a              = arch.Archetypes(self.df)
@@ -226,6 +231,7 @@ def main(self):
 
 if __name__ == "__main__":
     # directory = '/Users/Raul/Dropbox/Documents/Uni/Bachelorarbeit/AudioRecorder'
-    directory = '/Users/Raul/Dropbox/Documents/Uni/Bachelorarbeit/Database'
+    #sftp://gh0sthost.ddns.net/Volumes/Untitled/Ba/Data/Extracts/You_FM/2019-01-11/You_FM_2019-01-11T20-00-00_show431.mp3
+    directory = '/Users/Raul/Dropbox/Documents/Uni/Bachelorarbeit/Database/'
     nc = NumberCruncher(directory)
     main(nc)

@@ -56,7 +56,7 @@ class Archetypes():
         screeFig = plt.figure()
         plt.plot(ll, color = yellow)
         if title is not None:
-            plt.title('{}'.format(title), fontsize=22)
+            plt.title('{}'.format(title), fontsize=24)
         plt.xlabel('Archetypen')
         plt.ylabel('RSS')
         plt.grid(b=None, which='major', axis='both', linestyle='dotted')

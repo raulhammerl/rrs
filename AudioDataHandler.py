@@ -19,7 +19,7 @@ class AudioDataHandler:
         time_frame_tpl = self._calculate_time_frame(episode, recording)
 
         if time_frame_tpl is not None:
-            start_time = time_frame_tpl[0];
+            start_time = time_frame_tpl[0]
             end_time = time_frame_tpl[1]
             extracted_episode = self._extract_file(episode, recording, start_time, end_time)
             return extracted_episode
@@ -37,6 +37,7 @@ class AudioDataHandler:
     def _extract_file(self, episode, recording, start_time, end_time):
         output_file = self._set_file_name(episode, recording)
         logging.debug("extracting episode to: {}".format(output_file))
+        recording.duration = end_time-start_time
         if os.path.isfile(output_file):
             logging.debug("file already extracted")
             return output_file
@@ -103,15 +104,15 @@ class AudioDataHandler:
             logging.debug("episode from another channel")
             return #continue
 
-        # # check if episode started afer recordings ends
-        # if episode_start_time > recording_end_time:
-        #     logging.debug("all episodes for time frame checked")
-        #     return break
+        # check if episode started afer recordings ends
+        if episode_start_time > recording_end_time:
+            logging.debug("all episodes for time frame checked")
+            return #break
 
         # check if episode started after recording
         if episode_start_time > recording_start_time:
             start_time = episode_start_time - recording_start_time
-            recording.start_time = Helpers.get_time_from_sec(episode_start_time)
+            recording.start_time = episode_start_time
 
         # check if recording started after the episode started
         elif episode_start_time < recording_start_time:

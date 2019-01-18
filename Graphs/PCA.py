@@ -5,11 +5,11 @@ import seaborn as sns; sns.set()
 
 from matplotlib import rcParams
 rcParams['font.family'] = ['sans-serif']
-rcParams['font.sans-serif'] = ['Verlag']
+rcParams['font.sans-serif'] = ['PF DinDisplay Pro']
 rcParams.update({'font.size': 20})
+yellow ='#FEDE3D'
 
-
-dim = 2
+dim = 4
 rng = np.random.RandomState(1)
 X = np.dot(rng.rand(dim, dim), rng.randn(dim, 200)).T
 
@@ -47,13 +47,13 @@ def explained_variance_bar_diagram():
     expl_var = pca.explained_variance_ratio_
     expl_var = expl_var * 100
     print(expl_var)
-    plt.ylabel('Erklärtes Varianzverhältnis in Prozent', fontsize=18)
+    plt.ylabel('Erklärtes Varianzverhältnis', fontsize=18)
     plt.title('Hauptkomponenten', fontsize=18)
     plt.xticks(y_pos, objects, fontsize=18)
     # plt.yticks(0,100,20)
-    plt.yaxis([0, 100])
-    plt.xaxis([None, None, 0, 100])
-    bar = plt.bar(y_pos, expl_var, width = 0.8 ,align='center', alpha=0.8)
+
+    # plt.axis([None, None, 0, 100])
+    bar = plt.bar(y_pos, expl_var, width = 0.8 ,align='center', alpha=1, color=yellow)
 
     for rect in bar:
          height = rect.get_height()
@@ -63,5 +63,5 @@ def explained_variance_bar_diagram():
     plt.show()
 
 
-# explained_variance_bar_diagram()
-pc_vecotrs()
+explained_variance_bar_diagram()
+# pc_vecotrs()

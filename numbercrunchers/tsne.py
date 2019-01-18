@@ -7,13 +7,13 @@ from mpl_toolkits.mplot3d import Axes3D
 
 import time
 
-# channel_names={1:""}
-
+sns.set_context('poster')
+sns.set_color_codes()
+plot_kwds = {'alpha' : 0.25, 's' : 80, 'linewidths':0}
 from matplotlib import rcParams
 rcParams['font.family'] = ['sans-serif']
-rcParams['font.sans-serif'] = ['Verlag']
-
-
+rcParams['font.sans-serif'] = ['PF DinDisplay Pro']
+yellow ='#FEDE3D'
 
 def run_tsne(X, dimension, perplex):
     t0 = time.time()
@@ -45,37 +45,38 @@ def scatter_tsne_3d(X, colors, perplex):
     # print("saving plot to {}".format(file_name))
     plt.show()
 
-def scatter_tsne(X, colors, perplex):
-    # choose a color palette.
-    # palette = np.array(sns.color_palette("hls", colors.shape[0],))
-
-    # create a scatter plot.
+def scatter_tsne(data, target, perplex):
+    palette = sns.color_palette('deep', np.unique(target).max() + 1)
+    colors = [palette[x] if x >= 0 else (0.0, 0.0, 0.0) for x in target]
     f = plt.figure(figsize=(10, 10))
     ax = plt.subplot(aspect='equal')
-    sc = ax.scatter(X[:,0], X[:,1], lw=0, s=40,
-                    c=colors, cmap='tab20b', alpha=0.30)
+    plt.scatter(data.T[0], data.T[1], c=colors, **plot_kwds)
+    plt.axis('off')
+
+    ## add the labels for each group
+    for i in target.unique():
+        # Position of each label.
+        xtext, ytext = np.mean(data[target==i], axis=0)
+        text = target.get(i)
+        plt.annotate(text, (xtext, ytext),
+            horizontalalignment='center',
+                     verticalalignment='center',
+                     size=22, weight='bold',
+                     color='white',
+                     backgroundcolor=palette[i])
+                     #color=palette[i]
+
     plt.xlim(-50, 50)
     plt.ylim(-50, 50)
     ax.axis('off')
     ax.axis('tight')
-    ax.set_title('tSNE with perplexity: {}'.format(perplex), fontsize=20)
+    ax.set_title('t-SNE with perplexity: {}'.format(perplex), fontsize=20)
 
-    # # add the labels for each group
-    for i in colors.unique():
-        # Position of each label.
-        xtext, ytext = np.mean(X[colors==i], axis=0)
-        plt.annotate(i, (xtext, ytext),
-                 horizontalalignment='center',
-                 verticalalignment='center',
-                 size=28, weight='bold',
-                 color='black')
+    # plt.show()
+    file_name = "tSNE" + str(perplex) + ".png"
+    plt.savefig(file_name)
+    print("saving plot to {}".format(file_name))
 
-
-    plt.show()
-    # file_name = "tSNE" + str(perplex) + ".png"
-    # plt.savefig(file_name)
-    # print("saving plot to {}".format(file_name))
-    return f, ax, sc
 
 
 def tsne_perplexity_test(X, y, dimension):

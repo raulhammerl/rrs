@@ -84,7 +84,7 @@ class Database:
             recording = Recording(recording_tuple[1], recording_tuple[3], recording_tuple[4], recording_tuple[5], recording_tuple[6], recording_tuple[8])
             recording.id = id
             recording.channel_name = recording_tuple[2]
-            return recording
+            return recording_tuple
 
 
     def find_recordings_by_date(self, date):
@@ -172,16 +172,17 @@ class Database:
         data = self.execute(sql, show, 'lastrowid')
         return data
 
-    def find_show (self, show_name):
+    def find_show(self, show_name):
         sql = 'SELECT * FROM shows WHERE name=?'
         data = self.execute(sql, [show_name],'onerow')
         #EDIT probleme wenn doppelt gefunden
         return data
-    
-    def find_show_by_id (self, show_id):
+
+    def find_show_by_id(self, show_id):
         sql = 'SELECT * FROM shows WHERE show_id=?'
-        data = self.execute(sql, [show_id],'onerow')
+        data = self.execute(sql, [show_id], 'onerow')
         return data    
+
 
     def delete_show(self, show_id):
         """
@@ -377,7 +378,6 @@ class Database:
 
 
     def read_channel_csv(self):
-        array = []
         with open(self.csv_file, mode='r', encoding='utf8') as csv_file:
             csv_reader = csv.reader(csv_file, delimiter=';')
             line_count = 0

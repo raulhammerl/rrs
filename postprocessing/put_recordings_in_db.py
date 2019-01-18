@@ -13,6 +13,10 @@ import Database
 * channel
 """
 
+channel_names=['BR Klassik','Bayern 1','Bayern 3','B5 Aktuell','Puls','WDR2','WDR3',
+'WDR4',"BR_Heimat","Bayern+","Bayern_2_Sued","HR1","HR2","HR3","HR4","You_FM","MDR_Klassik",
+"MDR_Jump","MDR_Sputnik","NDR_90.3","NDR2","NDR_Spez","NDR_Blue","NDR1","B888","Fritz", "Radio_Eins"]
+
 class put_recordings_in_db():
 
     def __init__(self, directory):
@@ -66,18 +70,23 @@ class put_recordings_in_db():
         return tag.filesize
 
     def _get_channel(self, basename):
-        if('Bayern_1' in basename):
-            channel = 'Bayern_1'
-        elif('Bayern_3' in basename):
-            channel = 'Bayern_3'
-        elif('B5_Aktuell' in basename):
-            channel = 'B5_Aktuell'
-        elif('WDR2' in basename):
-            channel = 'WDR2'
-        elif('Br_Klassik' in basename):
-            channel = 'Br_Klassik'
-        elif('Puls' in basename):
-            channel = 'Puls'
+        for x in channel_names:
+            if x in basename:
+                channel = x 
+
+
+        # if('Bayern_1' in basename):
+        #     channel = 'Bayern_1'
+        # elif('Bayern_3' in basename):
+        #     channel = 'Bayern_3'
+        # elif('B5_Aktuell' in basename):
+        #     channel = 'B5_Aktuell'
+        # elif('WDR2' in basename):
+        #     channel = 'WDR2'
+        # elif('Br_Klassik' in basename):
+        #     channel = 'Br_Klassik'
+        # elif('Puls' in basename):
+        #     channel = 'Puls'
         return channel
 
 
