@@ -37,7 +37,7 @@ class AudioDataHandler:
     def _extract_file(self, episode, recording, start_time, end_time):
         output_file = self._set_file_name(episode, recording)
         logging.debug("extracting episode to: {}".format(output_file))
-        recording.duration = end_time-start_time
+        recording.duration = Helpers.get_time_from_sec(end_time-start_time)
         if os.path.isfile(output_file):
             logging.debug("file already extracted")
             return output_file

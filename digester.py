@@ -40,7 +40,7 @@ def main(argv=None):
     [1] channel name
     [2] directory
     [3] date
-    like: "./digsting_runner.py /User/Data 2018-02-10 Br_Klassik"
+    like: "./digsting_runner.py Br_Klassik /User/Data 2018-02-10 "
     '''
     # check number of arguments 
     if len(argv) < 3 or len(argv) > 4:

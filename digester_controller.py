@@ -10,7 +10,7 @@ channels = ['WDR2', 'WDR3', 'WDR4', 'BR_Heimat', 'Bayern+', 'Bayern_2_Sued', 'HR
 def runner(directory):
     time = 1
     for channel in channels:
-        call = ['/usr/local/bin/python3', '/Users/Raul/Dropbox/Documents/Uni/Bachelorarbeit/AudioRecorder/digester.py', channel, directory, str(time)]
+        call = ['/usr/local/bin/python3', '/Users/kingkraul/Dropbox/Documents/Uni/Bachelorarbeit/AudioRecorder/digester.py', channel, directory, str(time)]
         file = channel+'-dig-log.txt'
         log = os.path.join(directory, "Data", "Logs", file)
         log = open(log, 'a')  # so that data written to it will be appended
@@ -18,7 +18,7 @@ def runner(directory):
 
 def main():
     # directory = '/Volumes/Untitled/Ba/'
-    directory="Test"
+    directory="/Volumes/Untitled/Ba"
     runner(directory)
 
 

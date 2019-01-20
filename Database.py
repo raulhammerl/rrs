@@ -31,7 +31,7 @@ class Database:
 
     def __init__(self, directory):
         self.db_file = os.path.join(directory, 'Data', 'Database', 'db.sqlite')
-        self.csv_file = "/Users/Raul/Dropbox/Documents/Uni/Bachelorarbeit/RadioDNS/DabandStreams.csv"
+        self.csv_file = os.path.join(directory, 'Data', 'Database', 'channels.csv')
         Helpers.create_dir(self.db_file)
         print("db opened", self.db_file)
 
@@ -230,7 +230,7 @@ class Database:
         sql = '''UPDATE episodes
                  SET  recording_id = ?
                  WHERE episode_id = ?'''
-        logging.debug("updating episode: {} to recording: {}".format(episode_id, recording_id))
+        logging.info("updating episode: {} to recording: {}".format(episode_id, recording_id))
         data = self.execute(sql,[recording_id, episode_id], 'lastrowid')
         return data
 
@@ -391,7 +391,7 @@ class Database:
                     stream_url = row[2].replace(" ","")
                     channel_url = row[3].replace(" ","")
                     radiodns_url = channel_url + dab
-                    array.append(name)
+                    # array.append(name)
                     channel = (
                         name,
                         "",

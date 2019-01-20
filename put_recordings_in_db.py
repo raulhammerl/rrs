@@ -22,7 +22,7 @@ class put_recordings_in_db():
     def __init__(self, directory):
         directory_db = os.path.join(directory, 'Alternative')
         self.db = Database.Database(directory_db)
-        self.directory_captures = os.path.join(directory, 'Data','Captures')
+        self.directory_captures = os.path.join(directory,'Data','Captures')
         self.db.init_RadioDB()
 
     def run(self):
@@ -30,15 +30,18 @@ class put_recordings_in_db():
             for basename in files:
                 if(".mp3" in basename) & ("show" not in basename):
                     channel_name = self._get_channel(basename)
+                    print("name found:",channel_name)
                     file = os.path.join( root, basename)
                     t = self._get_creation_time(file)
                     date = t[0]
                     time = t[1]
                     duration = self._get_duration(file)
+                    if duration == 'file_empty':
+                        continue
                     size = self._get_size(file)
                     is_episode = 0
                     channel = self.db.find_channel_by_name(channel_name)
-                    print(channel)
+                    print("channel found:",channel)
                     recording=(
                                 channel.id,
                                 channel_name,
@@ -61,8 +64,11 @@ class put_recordings_in_db():
 
     def _get_duration(self, file):
         tag = TinyTag.get(file)
-        duration = int(tag.duration)
-        print(duration)
+        if tag.duration is not None:
+            duration = int(tag.duration)
+            print(duration)
+        else:
+            return 'file_empty'
         return Helpers.get_time_from_sec(duration)
 
     def _get_size(self, file):
@@ -75,7 +81,7 @@ class put_recordings_in_db():
             print(channel_names)
             print("s", basename)
             if x in basename:
-                channel = x 
+                channel = x
                 return channel
 
         # if('Bayern_1' in basename):
@@ -94,7 +100,7 @@ class put_recordings_in_db():
 
 
 def main():
-    directory = 'TEST/'
+    directory = '/Volumes/Untitled/BA/'
     prd = put_recordings_in_db(directory)
     prd.run()
 

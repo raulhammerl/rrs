@@ -95,16 +95,18 @@ class Recorder:
                 new_recording=( #is this necessary? there is already a recording
                             self.channel.id,
                             self.channel.name,
-                            recording.date, #edit missing formation!!
+                            str(recording.date), #edit missing formation!!
                             recording.start_time,
                             recording.duration,
                             recording.file,
                             recording.file_size,
                             recording.is_episode)
 
-                logging.debug("Finished recording: {}".format(new_recording))
+                logging.info("Finished recording: {}".format(new_recording))
 
                 recording.id = self.db.create_recording(new_recording)
+                print("new recording to database",new_recording)
+
                 return recording
 
             except UnicodeDecodeError as e:
